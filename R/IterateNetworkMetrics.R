@@ -27,7 +27,7 @@ iterateNetwork <- function(net.object,
     
     # prepare for loop
     estimates.df <- data.frame()
-    net.size <- length(V(corenet.g))
+    net.size <- vcount(corenet.g)
     nodes.num.list <- list()
     edges.num.list <- list()
     centralization.list <- list()
@@ -47,7 +47,7 @@ iterateNetwork <- function(net.object,
     
     for(u in 1:length(net.samples)) {
         # set graph sample size
-        graph.size <- round(net.size*net.samples[u], digits = 0)
+        graph.size <- round(net.size*net.samples[u]+.5, digits = 0)
         # reset estimates
         nodes.num.vec <- as.numeric()
         edges.num.vec <- as.numeric()
@@ -83,7 +83,7 @@ iterateNetwork <- function(net.object,
             page.rank.vec <- c(page.rank.vec,mean(igraph::page.rank(corenet.g)$vector))
             betweenness.vec <- c(betweenness.vec,igraph::centralization.betweenness(corenet.gx)$centralization)
             density.vec <- c(density.vec,igraph::graph.density(corenet.gx))
-            largest.component.vec <- c(largest.component.vec,sum(component.largest(as.network(as.matrix(get.adjacency(corenet.gx)), directed = directed.net), connected=c("strong"))))
+            largest.component.vec <- c(largest.component.vec,sum(sna::component.largest(as.network(as.matrix(igraph::get.adjacency(corenet.gx)), directed = directed.net), connected=c("strong"))))
         }
         nodes.num.list[[u]] <- as.list(nodes.num.vec)
         edges.num.list[[u]] <- as.list(edges.num.vec)
