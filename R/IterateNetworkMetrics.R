@@ -2,6 +2,7 @@ iterateNetwork <- function(net.object,
                            directed.net = FALSE, 
                            net.samples = rev(seq(0.01:1,by=0.01)),
                            net.iterate = 10,
+                           return.num="mean",
                            plot.estimators=TRUE) {
     
     # load dependencies
@@ -85,22 +86,40 @@ iterateNetwork <- function(net.object,
             density.vec <- c(density.vec,igraph::graph.density(corenet.gx))
             largest.component.vec <- c(largest.component.vec,sum(sna::component.largest(as.network(as.matrix(igraph::get.adjacency(corenet.gx)), directed = directed.net), connected=c("strong"))))
         }
-        nodes.num.list[[u]] <- as.list(nodes.num.vec)
-        edges.num.list[[u]] <- as.list(edges.num.vec)
-        centralization.list[[u]] <- as.list(centralization.vec)
-        diameter.list[[u]] <- as.list(diameter.vec)
-        eigenvector.list[[u]] <- as.list(eigenvector.vec)
-        permutation.list[[u]] <- as.list(permutation.vec)
-        transitivity.list[[u]] <- as.list(transitivity.vec)
-        articulations.list[[u]] <- as.list(articulations.vec)
-        clusters.list[[u]] <- as.list(clusters.vec)
-        avr.pathlength.list[[u]] <- as.list(avr.pathlength.vec)
-        avr.degree.list[[u]] <- as.list(avr.degree.vec)
-        avr.closeness.list[[u]] <- as.list(avr.closeness.vec)
-        page.rank.list[[u]] <- as.list(page.rank.vec)
-        betweenness.list[[u]] <- as.list(betweenness.vec)
-        density.list[[u]] <- as.list(density.vec)
-        largest.component.list[[u]] <- as.list(largest.component.vec)
+        if(return.num=="all") {
+            nodes.num.list[[u]] <- as.list(nodes.num.vec)
+            edges.num.list[[u]] <- as.list(edges.num.vec)
+            centralization.list[[u]] <- as.list(centralization.vec)
+            diameter.list[[u]] <- as.list(diameter.vec)
+            eigenvector.list[[u]] <- as.list(eigenvector.vec)
+            permutation.list[[u]] <- as.list(permutation.vec)
+            transitivity.list[[u]] <- as.list(transitivity.vec)
+            articulations.list[[u]] <- as.list(articulations.vec)
+            clusters.list[[u]] <- as.list(clusters.vec)
+            avr.pathlength.list[[u]] <- as.list(avr.pathlength.vec)
+            avr.degree.list[[u]] <- as.list(avr.degree.vec)
+            avr.closeness.list[[u]] <- as.list(avr.closeness.vec)
+            page.rank.list[[u]] <- as.list(page.rank.vec)
+            betweenness.list[[u]] <- as.list(betweenness.vec)
+            density.list[[u]] <- as.list(density.vec)
+            largest.component.list[[u]] <- as.list(largest.component.vec) }
+        if(return.num=="mean") {
+            nodes.num.list[[u]] <- as.list(mean(nodes.num.vec))
+            edges.num.list[[u]] <- as.list(mean(edges.num.vec))
+            centralization.list[[u]] <- as.list(mean(centralization.vec))
+            diameter.list[[u]] <- as.list(mean(diameter.vec))
+            eigenvector.list[[u]] <- as.list(mean(eigenvector.vec))
+            permutation.list[[u]] <- as.list(mean(permutation.vec))
+            transitivity.list[[u]] <- as.list(mean(transitivity.vec))
+            articulations.list[[u]] <- as.list(mean(articulations.vec))
+            clusters.list[[u]] <- as.list(mean(clusters.vec))
+            avr.pathlength.list[[u]] <- as.list(mean(avr.pathlength.vec))
+            avr.degree.list[[u]] <- as.list(mean(avr.degree.vec))
+            avr.closeness.list[[u]] <- as.list(mean(avr.closeness.vec))
+            page.rank.list[[u]] <- as.list(mean(page.rank.vec))
+            betweenness.list[[u]] <- as.list(mean(betweenness.vec))
+            density.list[[u]] <- as.list(mean(density.vec))
+            largest.component.list[[u]] <- as.list(mean(largest.component.vec)) }        
         # clear sample network
         rm(corenet.gx)
         # print process
@@ -108,24 +127,44 @@ iterateNetwork <- function(net.object,
     }
     
     # agregate results
-    estimates.df <- data.frame(sample = rep(net.samples, each = net.iterate),
-                               nodes=unlist(nodes.num.list),
-                               edges=unlist(edges.num.list),
-                               centralization=unlist(centralization.list),
-                               diameter=unlist(diameter.list),
-                               eigenvector=unlist(eigenvector.list),
-                               permutation=unlist(permutation.list),
-                               transitivity=unlist(transitivity.list),
-                               articulations=unlist(articulations.list),
-                               cluster=unlist(clusters.list),
-                               path.length=unlist(avr.pathlength.list),
-                               degree=unlist(avr.degree.list),
-                               closeness=unlist(avr.closeness.list),
-                               page.rank=unlist(page.rank.list),
-                               betweenness=unlist(betweenness.list),
-                               density=unlist(density.list),
-                               largest.component=unlist(largest.component.list))
-    
+    if(return.num=="all") {
+        estimates.df <- data.frame(sample = rep(net.samples, each = net.iterate),
+                                   nodes=unlist(nodes.num.list),
+                                   edges=unlist(edges.num.list),
+                                   centralization=unlist(centralization.list),
+                                   diameter=unlist(diameter.list),
+                                   eigenvector=unlist(eigenvector.list),
+                                   permutation=unlist(permutation.list),
+                                   transitivity=unlist(transitivity.list),
+                                   articulations=unlist(articulations.list),
+                                   cluster=unlist(clusters.list),
+                                   path.length=unlist(avr.pathlength.list),
+                                   degree=unlist(avr.degree.list),
+                                   closeness=unlist(avr.closeness.list),
+                                   page.rank=unlist(page.rank.list),
+                                   betweenness=unlist(betweenness.list),
+                                   density=unlist(density.list),
+                                   largest.component=unlist(largest.component.list)) }
+    if(return.num=="mean") {
+        estimates.df <- data.frame(sample = net.samples,
+                                   nodes=unlist(nodes.num.list),
+                                   edges=unlist(edges.num.list),
+                                   centralization=unlist(centralization.list),
+                                   diameter=unlist(diameter.list),
+                                   eigenvector=unlist(eigenvector.list),
+                                   permutation=unlist(permutation.list),
+                                   transitivity=unlist(transitivity.list),
+                                   articulations=unlist(articulations.list),
+                                   cluster=unlist(clusters.list),
+                                   path.length=unlist(avr.pathlength.list),
+                                   degree=unlist(avr.degree.list),
+                                   closeness=unlist(avr.closeness.list),
+                                   page.rank=unlist(page.rank.list),
+                                   betweenness=unlist(betweenness.list),
+                                   density=unlist(density.list),
+                                   largest.component=unlist(largest.component.list)) }
+
+    # plot data
     if(plot.estimators==TRUE) {
         # plot observed estimators
         if(net.iterate<50) { lwd.by.iteration <- 3}
@@ -152,3 +191,4 @@ iterateNetwork <- function(net.object,
     }
     return(estimates.df)
 }
+
