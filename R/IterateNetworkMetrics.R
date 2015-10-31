@@ -4,10 +4,10 @@ iterateNetwork <- function(net.object,
                            net.iterate = 10,
                            plot.estimators=TRUE) {
     
-    # load dependencies
-    require(network)
-    require(igraph)
-    require(sna)
+#    # load dependencies
+#    require(network)
+#    require(igraph)
+#    require(sna)
     
     # generate network & igraph objects
     if(class(net.object)=="igraph") { corenet <- as.network(as.matrix(get.adjacency(net.object)), directed = directed.net) }
@@ -65,20 +65,20 @@ iterateNetwork <- function(net.object,
             corenet.gx <- induced.subgraph(corenet.g, which(V(corenet.g)$name %in% V(corenet.g)$name[sample(1:vcount(corenet.g), graph.size)]))
             nodes.num.vec <- c(nodes.num.vec,vcount(corenet.gx))
             edges.num.vec <- c(edges.num.vec,ecount(corenet.gx))
-            centralization.vec <- c(centralization.vec,igraph::centralization.degree(corenet.gx)$centralization)
-            diameter.vec <- c(diameter.vec,igraph::diameter(corenet.gx))
-            eigenvector.vec <- c(eigenvector.vec,igraph::evcent(corenet.gx)$value)
-            permutation.vec <- c(permutation.vec,igraph::canonical.permutation(corenet.gx)$info$nof_nodes)
-            transitivity.vec <- c(transitivity.vec,igraph::transitivity(corenet.gx))
-            articulations.vec <- c(articulations.vec,length(igraph::articulation.points(corenet.gx)))
-            clusters.vec <- c(clusters.vec,igraph::clusters(corenet.gx)$csize[1])
-            avr.pathlength.vec <- c(avr.pathlength.vec,igraph::average.path.length(corenet.gx))
-            avr.degree.vec <- c(avr.degree.vec,mean(igraph::degree(corenet.gx)))
-            avr.closeness.vec <- c(avr.closeness.vec,mean(igraph::closeness(corenet.gx)))
-            page.rank.vec <- c(page.rank.vec,mean(igraph::page.rank(corenet.g)$vector))
-            betweenness.vec <- c(betweenness.vec,igraph::centralization.betweenness(corenet.gx)$centralization)
-            density.vec <- c(density.vec,igraph::graph.density(corenet.gx))
-            largest.component.vec <- c(largest.component.vec,sum(sna::component.largest(as.network(as.matrix(get.adjacency(corenet.gx)), directed = directed.net), connected=c("strong"))))
+            centralization.vec <- c(centralization.vec,centralization.degree(corenet.gx)$centralization)
+            diameter.vec <- c(diameter.vec,diameter(corenet.gx))
+            eigenvector.vec <- c(eigenvector.vec,evcent(corenet.gx)$value)
+            permutation.vec <- c(permutation.vec,canonical.permutation(corenet.gx)$info$nof_nodes)
+            transitivity.vec <- c(transitivity.vec,transitivity(corenet.gx))
+            articulations.vec <- c(articulations.vec,length(articulation.points(corenet.gx)))
+            clusters.vec <- c(clusters.vec,clusters(corenet.gx)$csize[1])
+            avr.pathlength.vec <- c(avr.pathlength.vec,average.path.length(corenet.gx))
+            avr.degree.vec <- c(avr.degree.vec,mean(degree(corenet.gx)))
+            avr.closeness.vec <- c(avr.closeness.vec,mean(closeness(corenet.gx)))
+            page.rank.vec <- c(page.rank.vec,mean(page.rank(corenet.g)$vector))
+            betweenness.vec <- c(betweenness.vec,centralization.betweenness(corenet.gx)$centralization)
+            density.vec <- c(density.vec,graph.density(corenet.gx))
+            largest.component.vec <- c(largest.component.vec,sum(component.largest(as.network(as.matrix(get.adjacency(corenet.gx)), directed = directed.net), connected=c("strong"))))
         }
         nodes.num.list[[u]] <- as.list(nodes.num.vec)
         edges.num.list[[u]] <- as.list(edges.num.vec)
