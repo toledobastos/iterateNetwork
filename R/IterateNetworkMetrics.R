@@ -104,7 +104,7 @@ iterateNetwork <- function(net.object,
         # clear sample network
         rm(corenet.gx)
         # print process
-        print(paste0("Interation ",u," of ", length(net.samples)," complete."))
+        print(paste0("Iteration ",u," of ", length(net.samples)," complete."))
     }
     
     # agregate results
