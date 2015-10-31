@@ -9,6 +9,10 @@ iterateNetwork <- function(net.object,
 #    require(igraph)
 #    require(sna)
     
+    # check vector names in network object
+    if(class(net.object)=="igraph" & is.null(V(net.object)$name)) { V(net.object)$name <- 1:vcount(net.object)}
+    if(class(net.object)=="network" & unique(is.na(network::get.vertex.attribute(net.object, "name")))) { network::set.vertex.attribute(net.object, "name", value = 1:length(network::get.vertex.attribute(net.object, "name"))) }
+
     # generate network & igraph objects
     if(class(net.object)=="igraph") { corenet <- as.network(as.matrix(get.adjacency(net.object)), directed = directed.net) }
     if(class(net.object)=="igraph") { corenet.g <- net.object }
@@ -74,7 +78,7 @@ iterateNetwork <- function(net.object,
             articulations.vec <- c(articulations.vec,length(articulation.points(corenet.gx)))
             clusters.vec <- c(clusters.vec,clusters(corenet.gx)$csize[1])
             avr.pathlength.vec <- c(avr.pathlength.vec,average.path.length(corenet.gx))
-            avr.degree.vec <- c(avr.degree.vec,mean(degree(corenet.gx)))
+            avr.degree.vec <- c(avr.degree.vec,mean(igraph::degree(corenet.gx)))
             avr.closeness.vec <- c(avr.closeness.vec,mean(closeness(corenet.gx)))
             page.rank.vec <- c(page.rank.vec,mean(page.rank(corenet.g)$vector))
             betweenness.vec <- c(betweenness.vec,centralization.betweenness(corenet.gx)$centralization)
