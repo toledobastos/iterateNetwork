@@ -11,6 +11,7 @@ iterateNetwork <- function(net.object,
     
     # generate network & igraph objects
     if(class(net.object)=="igraph") { corenet <- as.network(as.matrix(get.adjacency(net.object)), directed = directed.net) }
+    if(class(net.object)=="igraph") { corenet.g <- net.object }
     if(class(net.object)=="network") { corenet <- net.object }
     if(directed.net==FALSE & class(net.object)=="network") { corenet.g <- graph.adjacency(as.sociomatrix(net.object), mode="undirected") }
     if(directed.net==TRUE & class(net.object)=="network") { corenet.g <- graph.adjacency(as.sociomatrix(net.object), mode="directed") }
