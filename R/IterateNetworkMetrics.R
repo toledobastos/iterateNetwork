@@ -4,15 +4,15 @@ iterateNetwork <- function(net.object,
                            net.iterate = 10,
                            plot.estimators=TRUE) {
     
-#    # load dependencies
-#    require(network)
-#    require(igraph)
-#    require(sna)
+    # load dependencies
+    require(network)
+    require(igraph)
+    require(sna)
     
     # check vector names in network object
     if(class(net.object)=="igraph" & is.null(V(net.object)$name)) { V(net.object)$name <- 1:vcount(net.object)}
     if(class(net.object)=="network" & unique(is.na(network::get.vertex.attribute(net.object, "name")))) { network::set.vertex.attribute(net.object, "name", value = 1:length(network::get.vertex.attribute(net.object, "name"))) }
-
+    
     # generate network & igraph objects
     if(class(net.object)=="igraph") { corenet <- as.network(as.matrix(get.adjacency(net.object)), directed = directed.net) }
     if(class(net.object)=="igraph") { corenet.g <- net.object }
@@ -106,37 +106,37 @@ iterateNetwork <- function(net.object,
         # print process
         print(paste0("Interation ",u," of ", length(net.samples)," complete."))
     }
-
-# agregate results
-estimates.df <- data.frame(sample = rep(net.samples, each = net.iterate),
-                           nodes=unlist(nodes.num.list),
-                           edges=unlist(edges.num.list),
-                           centralization=unlist(centralization.list),
-                           diameter=unlist(diameter.list),
-                           eigenvector=unlist(eigenvector.list),
-                           permutation=unlist(permutation.list),
-                           transitivity=unlist(transitivity.list),
-                           articulations=unlist(articulations.list),
-                           cluster=unlist(clusters.list),
-                           path.length=unlist(avr.pathlength.list),
-                           degree=unlist(avr.degree.list),
-                           closeness=unlist(avr.closeness.list),
-                           page.rank=unlist(page.rank.list),
-                           betweenness=unlist(betweenness.list),
-                           density=unlist(density.list),
-                           largest.component=unlist(largest.component.list))
-
-if(plot.estimators==TRUE) {
-    # plot observed estimators
-    colorsmetric <- rainbow(ncol(estimates.df))
-    png(paste0("network_estimates_",net.iterate,"_iterations.png"), type='cairo', width=20,height=12, units='in', res=200)
-    par(mfrow=c(4,4))
-    for(i in 2:ncol(estimates.df)) {
-        plot(as.numeric(estimates.df[,i]), xlab="", ylab="", col=colorsmetric[i], cex=.5, xaxt="n",
-             main=paste(colnames(estimates.df)[i]), type="l",lwd=3,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
-        axis(1, at=1:length(estimates.df$sample), labels=paste0((rev(seq(from=1, to=length(estimates.df$sample), by=1))/net.iterate),"%"))
+    
+    # agregate results
+    estimates.df <- data.frame(sample = rep(net.samples, each = net.iterate),
+                               nodes=unlist(nodes.num.list),
+                               edges=unlist(edges.num.list),
+                               centralization=unlist(centralization.list),
+                               diameter=unlist(diameter.list),
+                               eigenvector=unlist(eigenvector.list),
+                               permutation=unlist(permutation.list),
+                               transitivity=unlist(transitivity.list),
+                               articulations=unlist(articulations.list),
+                               cluster=unlist(clusters.list),
+                               path.length=unlist(avr.pathlength.list),
+                               degree=unlist(avr.degree.list),
+                               closeness=unlist(avr.closeness.list),
+                               page.rank=unlist(page.rank.list),
+                               betweenness=unlist(betweenness.list),
+                               density=unlist(density.list),
+                               largest.component=unlist(largest.component.list))
+    
+    if(plot.estimators==TRUE) {
+        # plot observed estimators
+        colorsmetric <- rainbow(ncol(estimates.df))
+        png(paste0("network_estimates_",net.iterate,"_iterations.png"), type='cairo', width=20,height=12, units='in', res=200)
+        par(mfrow=c(4,4))
+        for(i in 2:ncol(estimates.df)) {
+            plot(as.numeric(estimates.df[,i]), xlab="", ylab="", col=colorsmetric[i], cex=.5, xaxt="n",
+                 main=paste(colnames(estimates.df)[i]), type="l",lwd=3,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
+            axis(1, at=1:length(estimates.df$sample), labels=paste0((rev(seq(from=1, to=length(estimates.df$sample), by=1))/net.iterate),"%"))
+        }
+        dev.off()
     }
-    dev.off()
-    }
-return(estimates.df)
+    return(estimates.df)
 }
