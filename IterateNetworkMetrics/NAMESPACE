@@ -1,0 +1,4 @@
+import(sna)
+import(igraph)
+export(network)
+export(iterateNetwork)
