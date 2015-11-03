@@ -172,22 +172,22 @@ iterateNetwork <- function(net.object,
         if(net.iterate>100 && net.iterate<500) { lwd.by.iteration <- 1}
         if(net.iterate>500) { lwd.by.iteration <- 0.3}
         colorsmetric <- rainbow(ncol(estimates.df))
-        png(paste0("network_estimates_",net.iterate,"_iterations_type_o.png"), type='cairo', width=20,height=12, units='in', res=200)
-        par(mfrow=c(4,4))
-        for(i in 2:ncol(estimates.df)) {
-            plot(as.numeric(estimates.df[,i]), xlab="", ylab="", col=colorsmetric[i], cex=.5, xaxt="n",
-                 main=paste(colnames(estimates.df)[i]), type="o",lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
-            axis(1, at=1:length(estimates.df$sample), labels=paste0((rev(seq(from=1, to=length(estimates.df$sample), by=1))/net.iterate),"%"))
-        }
-        dev.off()
+#         png(paste0("network_estimates_",net.iterate,"_iterations_type_o.png"), type='cairo', width=20,height=12, units='in', res=200)
+#         par(mfrow=c(4,4))
+#         for(i in 2:ncol(estimates.df)) {
+#             plot(as.numeric(estimates.df[,i]), xlab="", ylab="", col=colorsmetric[i], cex=.5, xaxt="n",
+#                  main=paste(colnames(estimates.df)[i]), type="o",lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
+#             axis(1, at=1:length(estimates.df$sample), labels=paste0((rev(seq(from=1, to=length(estimates.df$sample), by=1))/net.iterate),"%"))
+#         }
+#         dev.off()
         png(paste0("network_estimates_",net.iterate,"_iterations_type_l.png"), type='cairo', width=20,height=12, units='in', res=200)
         par(mfrow=c(4,4))
         for(i in 2:ncol(estimates.df)) {
             plot(as.numeric(estimates.df[,i]), xlab="", ylab="", col=colorsmetric[i], cex=.5, xaxt="n",
                  main=paste(colnames(estimates.df)[i]), type="l", lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
-            axis(1, at=1:length(estimates.df$sample), labels=paste0((rev(seq(from=1, to=length(estimates.df$sample), by=1))/net.iterate),"%"))
+            axis(1, at=1:length(estimates.df$sample), labels=paste0(rev(seq(from=100/length(estimates.df$sample), to=100, by=(100/length(estimates.df$sample)))),"%"))
         }
-        dev.off() 
+        dev.off()
     }
     return(estimates.df)
 }

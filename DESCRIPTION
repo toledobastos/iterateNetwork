@@ -1,7 +1,7 @@
 Package: IterateNetworkMetrics
 Type: Package
 Title: Sample and Iteration for Network Metrics
-Version: 0.1.1
+Version: 0.1.2
 Date: 2015-10-30
 Author: Marco T. Bastos
 Maintainer: Marco T. Bastos <marco@toledobastos.com>
