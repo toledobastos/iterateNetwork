@@ -11,15 +11,15 @@ iterateNetwork <- function(net.object,
     require(sna)
     
     # check vector names in network object
-    if(class(net.object)=="igraph" & is.null(V(net.object)$name)) { V(net.object)$name <- 1:vcount(net.object)}
+    if(class(net.object)=="igraph" && is.null(V(net.object)$name)) { V(net.object)$name <- 1:vcount(net.object)}
     if(class(net.object)=="network") { if(unique(is.na(network::get.vertex.attribute(net.object, "name")))) { network::set.vertex.attribute(net.object, "name", value = 1:length(network::get.vertex.attribute(net.object, "name"))) } }
 
     # generate network & igraph objects
     if(class(net.object)=="igraph") { corenet <- as.network(as.matrix(get.adjacency(net.object)), directed = directed.net) }
     if(class(net.object)=="igraph") { corenet.g <- net.object }
     if(class(net.object)=="network") { corenet <- net.object }
-    if(directed.net==FALSE & class(net.object)=="network") { corenet.g <- graph.adjacency(as.sociomatrix(net.object), mode="undirected") }
-    if(directed.net==TRUE & class(net.object)=="network") { corenet.g <- graph.adjacency(as.sociomatrix(net.object), mode="directed") }
+    if(directed.net==FALSE && class(net.object)=="network") { corenet.g <- graph.adjacency(as.sociomatrix(net.object), mode="undirected") }
+    if(directed.net==TRUE && class(net.object)=="network") { corenet.g <- graph.adjacency(as.sociomatrix(net.object), mode="directed") }
     
     # set seed 
     seed <- gsub("-","",as.character(Sys.Date()))
@@ -168,8 +168,8 @@ iterateNetwork <- function(net.object,
     if(plot.estimators==TRUE) {
         # plot observed estimators
         if(net.iterate<50) { lwd.by.iteration <- 3}
-        if(net.iterate>50 & net.iterate<100) { lwd.by.iteration <- 2}
-        if(net.iterate>100 & net.iterate<500) { lwd.by.iteration <- 1}
+        if(net.iterate>50 && net.iterate<100) { lwd.by.iteration <- 2}
+        if(net.iterate>100 && net.iterate<500) { lwd.by.iteration <- 1}
         if(net.iterate>500) { lwd.by.iteration <- 0.3}
         colorsmetric <- rainbow(ncol(estimates.df))
         png(paste0("network_estimates_",net.iterate,"_iterations_type_o.png"), type='cairo', width=20,height=12, units='in', res=200)
