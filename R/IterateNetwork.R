@@ -218,7 +218,7 @@ iterateNetwork <- function(net.object,
         for(i in 2:ncol(estimates.df)) {
             plot(as.numeric(estimates.df[,i]), xlab="", ylab="", col=colorsmetric[i], cex=.5, xaxt="n",
                  main=paste(colnames(estimates.df)[i]), type="p", lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
-            lines(as.numeric(estimates.df[,i]), col=colorsmetric[i], lwd = 0.0001)
+            lines(as.numeric(estimates.df[,i]), col=black, lwd = lwd.by.iteration)
             axis(1, at=labels.plot1, labels=labels.plot2)
         }
         dev.off()
