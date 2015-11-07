@@ -3,7 +3,7 @@ iterateNetwork <- function(net.object,
                            net.iterate = 10,
                            iteration.type="random",
                            attribute=NULL,
-                           stepwise.removal=3,
+                           stepwise.removal=1,
                            return.estimates="selected",
                            plot.estimators=TRUE) {
     
@@ -66,10 +66,10 @@ iterateNetwork <- function(net.object,
             net.samples.list[[x]] <- attribute.index$nodes[as.character(attribute.index$attribute)==attribute.unique[x] ] }
         net.samples <- as.character(sort(unique(attribute.index$attribute)))
         module.sizes <- unlist(lapply(net.samples.list, length))
-        min.stepwise <- min(module.sizes)-1
-        print(paste0("Maximum stepwise removal for this network attribute is ", min.stepwise))
+        min.stepwise <- min(module.sizes)
+        print(paste0("Maximum stepwise removal for this network attribute is ", min(module.sizes)))
         if(stepwise.removal>min.stepwise) { 
-            stop(print(paste0("Maximum stepwise removal for this network attribute is ", min.stepwise,"! Set stepwise.removal accordingly.")))}
+            stop(print(paste0("Maximum stepwise removal for this network attribute is ", min(module.sizes),"! Set stepwise.removal accordingly.")))}
     }
     
     # start network slicing
