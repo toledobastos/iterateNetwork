@@ -35,6 +35,19 @@ iterateNetwork <- function(net.object,
     set.seed(as.numeric(seed))
     print(paste0("Setting seed to ",seed))
     
+    # load small-word quotient calculation
+    small.wordness <- function(net.object) {
+        n <- igraph::vcount(net.object)
+        p <- igraph::graph.density(net.object)
+        k <- p*(n-1)
+        cc.rand <- k/n
+        apl.rand <- log(n)/log(k)
+        cc <- igraph::transitivity(net.object, type=c("localundirected"), isolates=c("zero"))
+        cc.obs <- mean(cc)
+        apl.obs <- igraph::average.path.length(net.object, directed=F, unconnected=T)
+        Q <- (cc.obs/cc.rand)/(apl.obs/apl.rand) 
+        return(Q) }
+        
     # prepare for loop
     estimates.df <- data.frame()
     net.size <- vcount(corenet.g)
@@ -143,7 +156,7 @@ iterateNetwork <- function(net.object,
             betweenness.vec <- c(betweenness.vec,igraph::centralization.betweenness(corenet.gx)$centralization)
             density.vec <- c(density.vec,igraph::graph.density(corenet.gx))
             largest.component.vec <- c(largest.component.vec,sum(sna::component.largest(as.network(as.matrix(igraph::get.adjacency(corenet.gx)), directed = igraph::is.directed(corenet.gx)), connected=c("strong"))))
-            small.world.vec <- c(small.world.vec, (mean(igraph::transitivity(corenet.gx, type=c("localundirected"), isolates=c("zero")))/igraph::graph.density(corenet.gx)/igraph::vcount(corenet.gx))/(igraph::average.path.length(corenet.gx)/log(igraph::vcount(corenet.gx))/log(igraph::graph.density(corenet.gx)*(igraph::vcount(corenet.gx)-1))))
+            small.world.vec <- c(small.world.vec, small.wordness(corenet.gx))
         }
         # aggregate estimates        
         nodes.num.list[[u]] <- as.list(nodes.num.vec)
