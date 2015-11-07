@@ -5,7 +5,8 @@ iterateNetwork <- function(net.object,
                            attribute=NULL,
                            stepwise.removal=1,
                            return.estimates="selected",
-                           plot.estimators=TRUE) {
+                           plot.estimators=TRUE,
+                           plot.type="p") {
     
     # load dependencies
     require(intergraph)
@@ -64,18 +65,19 @@ iterateNetwork <- function(net.object,
         attribute.unique <- unique(as.character(attribute.index$attribute))
         for(x in 1:length(unique(attribute.index$attribute))) {
             net.samples.list[[x]] <- attribute.index$nodes[as.character(attribute.index$attribute)==attribute.unique[x] ] }
-        net.samples <- as.character(sort(unique(attribute.index$attribute)))
         module.sizes <- unlist(lapply(net.samples.list, length))
         min.stepwise <- min(module.sizes)
         print(paste0("Maximum stepwise removal for this network attribute is ", min(module.sizes)))
         if(stepwise.removal>min.stepwise) { 
             stop(print(paste0("Maximum stepwise removal for this network attribute is ", min(module.sizes),"! Set stepwise.removal accordingly.")))}
+        net.samples <- rep(as.character(sort(unique(attribute.index$attribute))), each=min(module.sizes))
     }
     
     # start network slicing
     for(u in 1:length(net.samples)) {
         # set graph sample size
-        if(iteration.type=="attribute") { graph.size <- vcount(corenet.g)-stepwise.removal } 
+        if(iteration.type=="attribute") { net.iterate <- min(module.sizes)
+                                          stepwise.count <- stepwise.removal-1 } 
         if(iteration.type!="attribute") { graph.size <- round(net.size*net.samples[u]+.5, digits = 0) }
         # reset estimates
         nodes.num.vec <- as.numeric()
@@ -113,8 +115,9 @@ iterateNetwork <- function(net.object,
                 nodes.select <- names(sort(closeness(corenet.g), decreasing=T)[(vcount(corenet.g)-graph.size):vcount(corenet.g)])
                 corenet.gx <- induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
             if(iteration.type=="attribute") { 
-                cat("\r","Starting attribute iteration",j,"of",net.iterate) 
-                nodes.deselect <- sample(net.samples.list[[u]], stepwise.removal)
+                stepwise.count <- stepwise.count+1
+                cat("\r","Iterative removal of targeted nodes",j,"of",net.iterate)
+                nodes.deselect <- sample(net.samples.list[[j]], stepwise.count)
                 nodes.select <- V(corenet.g)$name[!V(corenet.g)$name %in% nodes.deselect]
                 corenet.gx <- induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
             # collect metrics per iteration
@@ -184,7 +187,7 @@ iterateNetwork <- function(net.object,
             estimates.df <- estimates.df[,c(return.estimates)] } }
     estimates.total <- ncol(estimates.df)
     
-    # add sample marker
+    # add identifier for each network projection
     estimates.df <- cbind(data.frame(sample=rep(net.samples, each = net.iterate)), estimates.df)
     
     # plot data
@@ -193,6 +196,7 @@ iterateNetwork <- function(net.object,
         divisors <- function(x) { y <- seq_len(x); y[ x%%y == 0 ] }
         # plot observed estimators
         if(nrow(estimates.df)<500) { lwd.by.iteration <- 10}
+        if(nrow(estimates.df)>500 && nrow(estimates.df)<1000) { lwd.by.iteration <- 3}
         if(nrow(estimates.df)>1000 && nrow(estimates.df)<2000) { lwd.by.iteration <- 2}
         if(nrow(estimates.df)>2000 && nrow(estimates.df)<4000) { lwd.by.iteration <- 1}
         if(nrow(estimates.df)>4000) { lwd.by.iteration <- 0.3}
@@ -207,7 +211,7 @@ iterateNetwork <- function(net.object,
         if(estimates.total==15) { plot.panels <- c(3,5) }
         if(estimates.total>16 && estimates.total<20) { plot.panels <- c(4,5) }
         if(estimates.total>20) { plot.panels <- c(5,round(median(divisors(estimates.total)))) }        
-        png(paste0("network_estimates_",net.iterate,"_iterations_",iteration.type,"_",tolower(attribute),".png"), type='cairo', width=20,height=12, units='in', res=200)
+        png(paste0("network_estimates_",net.iterate,"_iterations_over_",length(net.samples),"_projections_",iteration.type,"_",tolower(attribute),".png"), type='cairo', width=20,height=12, units='in', res=200)
         par(mfrow=plot.panels)
         if(iteration.type!="attribute") {
             labels.plot1 <- 1:length(estimates.df$sample)
@@ -217,7 +221,7 @@ iterateNetwork <- function(net.object,
             labels.plot2 <- paste0(estimates.df$sample) }
         for(i in 2:ncol(estimates.df)) {
             plot(as.numeric(estimates.df[,i]), xlab="", ylab="", col=colorsmetric[i], cex=0.5, xaxt="n",
-                 main=paste(colnames(estimates.df)[i]), type="p", lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
+                 main=paste(colnames(estimates.df)[i]), type=plot.type, lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
             axis(1, at=labels.plot1, labels=labels.plot2)
         }
         dev.off()

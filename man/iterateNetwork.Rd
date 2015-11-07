@@ -26,11 +26,18 @@ Defaults to random iteration. It also accepts degree, betweenness, closeness, an
   \item{attribute}{
 Required for running iterations over vertex attribute. Defaults to NULL.
 }
+  \item{stepwise.removal}{
+Defines the sample of size of targeted nodes to be removed each iteration. Required for running iterations over vertex attribute. Defaults to 1.
+}
   \item{plot.estimators}{
 Defaults to TRUE to include a plot of the estimates generated during the iterations.
 }
+}
+  \item{plot.type}{
+Defines the plot type used in R base graphics. Defaults to 'p' for points, but lines ('l') or lines and points ('o') might be more suitable for targeted node removal.
+}
   \item{return.estimates}{
-Defines which network metrics to iterate thru. It defaults to a selection of 15 metrics but can be set to ALL to return all metrics available (see below). You can manually select or remove any of the following metrics: 
+Defines which network metrics to iterate over. It defaults to a selection of 15 metrics but can be set to ALL to return all metrics available (see below). You can manually select or remove any of the following metrics: 
 # 01. nodes
 # 02. edges
 # 03. centralization
@@ -48,6 +55,7 @@ Defines which network metrics to iterate thru. It defaults to a selection of 15 
 # 15. density
 # 16. largest.component
 # 17. small.world
+by setting return.estimates=c(1:10,12:17), with numbers indicating the above metrics
 }
 }
 \author{
@@ -56,8 +64,8 @@ Marco T. Batos
 
 \examples{
 # Not run:
-net.object <- barabasi.game(50) # generate sample network
-iterateNetwork(net.object)
+net.object <- barabasi.game(50) # generates sample network
+iterateNetwork(net.object) # iterate over network with default arguments
 }
 \keyword{ iteration }
 \keyword{ network }
