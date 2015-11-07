@@ -207,7 +207,7 @@ iterateNetwork <- function(net.object,
         if(estimates.total==15) { plot.panels <- c(3,5) }
         if(estimates.total>16 && estimates.total<20) { plot.panels <- c(4,5) }
         if(estimates.total>20) { plot.panels <- c(5,round(median(divisors(estimates.total)))) }        
-        png(paste0("network_estimates_",net.iterate,"_iterations_type_l.png"), type='cairo', width=20,height=12, units='in', res=200)
+        png(paste0("network_estimates_",net.iterate,"_iterations_",iteration.type,"_",tolower(attribute),".png"), type='cairo', width=20,height=12, units='in', res=200)
         par(mfrow=plot.panels)
         if(iteration.type!="attribute") {
             labels.plot1 <- 1:length(estimates.df$sample)
@@ -218,7 +218,6 @@ iterateNetwork <- function(net.object,
         for(i in 2:ncol(estimates.df)) {
             plot(as.numeric(estimates.df[,i]), xlab="", ylab="", col=colorsmetric[i], cex=0.5, xaxt="n",
                  main=paste(colnames(estimates.df)[i]), type="p", lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
-#             lines(as.numeric(estimates.df[,i]), col=colorsmetric[i], lwd = lwd.by.iteration)
             axis(1, at=labels.plot1, labels=labels.plot2)
         }
         dev.off()
