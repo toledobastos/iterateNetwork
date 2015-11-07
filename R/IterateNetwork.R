@@ -61,6 +61,14 @@ iterateNetwork <- function(net.object,
         attribute.index <- data.frame(nodes=igraph::V(corenet.g)$name, attribute=igraph::get.vertex.attribute(corenet.g, attribute, index=igraph::V(corenet.g)))
         attribute.index$attribute <- as.factor(as.character(attribute.index$attribute))
         attribute.index <- attribute.index[order(attribute.index$attribute),]
+        # check for singletons and fix if necessary
+        attribute.index.table <- as.data.frame(table(as.character(attribute.index$attribute)))
+        if(any(attribute.index.table$Freq==1)) {
+            attribute.index <- merge(attribute.index, attribute.index.table, by.x="attribute", by.y="Var1", all.x=T)
+            attribute.index$attribute <- as.character(attribute.index$attribute)
+            attribute.index$attribute[attribute.index$Fre<round(median(attribute.index.table$Freq))] <- "ETAL"
+            attribute.index$Freq <- NULL
+        }
         net.samples.list <- list()
         attribute.unique <- unique(as.character(attribute.index$attribute))
         for(x in 1:length(unique(attribute.index$attribute))) {
@@ -70,14 +78,13 @@ iterateNetwork <- function(net.object,
         print(paste0("Maximum stepwise removal for this network attribute is ", min(module.sizes)))
         if(stepwise.removal>min.stepwise) { 
             stop(print(paste0("Maximum stepwise removal for this network attribute is ", min(module.sizes),"! Set stepwise.removal accordingly.")))}
-        net.samples <- rep(as.character(sort(unique(attribute.index$attribute))), each=min(module.sizes))
+        net.samples <- attribute.unique
+        net.iterate <- round(min(module.sizes)/stepwise.removal)
     }
     
     # start network slicing
     for(u in 1:length(net.samples)) {
         # set graph sample size
-        if(iteration.type=="attribute") { net.iterate <- min(module.sizes)
-                                          stepwise.count <- stepwise.removal-1 } 
         if(iteration.type!="attribute") { graph.size <- round(net.size*net.samples[u]+.5, digits = 0) }
         # reset estimates
         nodes.num.vec <- as.numeric()
@@ -101,25 +108,24 @@ iterateNetwork <- function(net.object,
         for(j in 1:net.iterate) {
             if(iteration.type=="random") { 
                 cat("\r","Starting random iteration",j,"of",net.iterate)
-                corenet.gx <- induced.subgraph(corenet.g, which(V(corenet.g)$name %in% V(corenet.g)$name[sample(1:vcount(corenet.g), graph.size)])) }
+                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% V(corenet.g)$name[sample(1:igraph::vcount(corenet.g), graph.size)])) }
             if(iteration.type=="degree") { 
                 cat("\r","Starting degree iteration",j,"of",net.iterate)
-                nodes.select <- names(sort(degree(corenet.g), decreasing=T)[(vcount(corenet.g)-graph.size):vcount(corenet.g)])
-                corenet.gx <- induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                nodes.select <- names(sort(igraph::degree(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
+                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
             if(iteration.type=="betweenness") { 
                 cat("\r","Starting betweenness iteration",j,"of",net.iterate)
-                nodes.select <- names(sort(betweenness(corenet.g), decreasing=T)[(vcount(corenet.g)-graph.size):vcount(corenet.g)])
-                corenet.gx <- induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                nodes.select <- names(sort(igraph::betweenness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
+                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
             if(iteration.type=="closeness") { 
                 cat("\r","Starting closeness iteration",j,"of",net.iterate)
-                nodes.select <- names(sort(closeness(corenet.g), decreasing=T)[(vcount(corenet.g)-graph.size):vcount(corenet.g)])
-                corenet.gx <- induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                nodes.select <- names(sort(igraph::closeness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
+                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
             if(iteration.type=="attribute") { 
-                stepwise.count <- stepwise.count+1
                 cat("\r","Iterative removal of targeted nodes",j,"of",net.iterate)
-                nodes.deselect <- sample(net.samples.list[[j]], stepwise.count)
+                nodes.deselect <- sample(net.samples.list[[u]], stepwise.removal*j)
                 nodes.select <- V(corenet.g)$name[!V(corenet.g)$name %in% nodes.deselect]
-                corenet.gx <- induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
             # collect metrics per iteration
             nodes.num.vec <- c(nodes.num.vec,igraph::vcount(corenet.gx))
             edges.num.vec <- c(edges.num.vec,igraph::ecount(corenet.gx))
@@ -188,7 +194,9 @@ iterateNetwork <- function(net.object,
     estimates.total <- ncol(estimates.df)
     
     # add identifier for each network projection
-    estimates.df <- cbind(data.frame(sample=rep(net.samples, each = net.iterate)), estimates.df)
+    if(iteration.type=="attribute") { identifier <- rep(attribute.unique, each=net.iterate) }
+    if(iteration.type!="attribute") { identifier <- rep(net.samples, each = net.iterate) }
+    estimates.df <- cbind(data.frame(sample=identifier), estimates.df)
     
     # plot data
     if(plot.estimators==TRUE) {
