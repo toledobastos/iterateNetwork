@@ -57,7 +57,7 @@ iterateNetwork <- function(net.object,
     
     # index node for attribute iteration
     if(iteration.type=="attribute") {
-        attribute.index <- data.frame(nodes=igraph::V(corenet.g)$name, attribute=igraph::get.vertex.attribute(corenet.g, attribute, index=V(corenet.g)))
+        attribute.index <- data.frame(nodes=igraph::V(corenet.g)$name, attribute=igraph::get.vertex.attribute(corenet.g, attribute, index=igraph::V(corenet.g)))
         attribute.index$attribute <- as.factor(as.character(attribute.index$attribute))
         attribute.index <- attribute.index[order(attribute.index$attribute),]
         net.samples.list <- list()
