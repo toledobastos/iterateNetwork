@@ -192,10 +192,10 @@ iterateNetwork <- function(net.object,
         # calculate divisor
         divisors <- function(x) { y <- seq_len(x); y[ x%%y == 0 ] }
         # plot observed estimators
-        if(net.iterate<50) { lwd.by.iteration <- 2}
-        if(net.iterate>50 && net.iterate<100) { lwd.by.iteration <- 1}
-        if(net.iterate>100 && net.iterate<500) { lwd.by.iteration <- 0.5}
-        if(net.iterate>500) { lwd.by.iteration <- 0.15}
+        if(nrow(estimates.df)<500) { lwd.by.iteration <- 10}
+        if(nrow(estimates.df)>1000 && nrow(estimates.df)<2000) { lwd.by.iteration <- 2}
+        if(nrow(estimates.df)>2000 && nrow(estimates.df)<4000) { lwd.by.iteration <- 1}
+        if(nrow(estimates.df)>4000) { lwd.by.iteration <- 0.3}
         colorsmetric <- rainbow(estimates.total+1)
         # set plot window
         if(estimates.total<6) { plot.panels <- c(estimates.total,1) }
@@ -216,7 +216,7 @@ iterateNetwork <- function(net.object,
             labels.plot1 <- 1:length(estimates.df$sample)
             labels.plot2 <- paste0(estimates.df$sample) }
         for(i in 2:ncol(estimates.df)) {
-            plot(as.numeric(estimates.df[,i]), xlab="", ylab="", col=colorsmetric[i], cex=.5, xaxt="n",
+            plot(as.numeric(estimates.df[,i]), xlab="", ylab="", col=colorsmetric[i], cex=0.5, xaxt="n",
                  main=paste(colnames(estimates.df)[i]), type="p", lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
 #             lines(as.numeric(estimates.df[,i]), col=colorsmetric[i], lwd = lwd.by.iteration)
             axis(1, at=labels.plot1, labels=labels.plot2)
