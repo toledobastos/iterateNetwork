@@ -143,7 +143,7 @@ iterateNetwork <- function(net.object,
             betweenness.vec <- c(betweenness.vec,igraph::centralization.betweenness(corenet.gx)$centralization)
             density.vec <- c(density.vec,igraph::graph.density(corenet.gx))
             largest.component.vec <- c(largest.component.vec,sum(sna::component.largest(as.network(as.matrix(igraph::get.adjacency(corenet.gx)), directed = igraph::is.directed(corenet.gx)), connected=c("strong"))))
-            small.world.vec <- c(small.world.vec, (mean(igraph::transitivity(corenet.gx, type=c("localundirected"), isolates=c("zero")))/igraph::graph.density(corenet.gx)/igraph::vcount(corenet.gx))/(igraph::average.path.length(corenet.gx)/log(igraph::vcount(corenet.gx))/log(igraph::graph.density(corenet.gx)*(igraph::vcount(corenet.gx)-1))))
+            small.world.vec <- c(small.world.vec, ((mean(igraph::transitivity(corenet.gx, type = c("localundirected"), isolates = c("zero"))))/((igraph::graph.density(corenet.gx)*((igraph::vcount(corenet.gx))-1))/(igraph::vcount(corenet.gx))))/((igraph::average.path.length(corenet.gx))/((log(igraph::vcount(corenet.gx)))/(log((igraph::graph.density(corenet.gx))*(igraph::vcount(corenet.gx)-1))))))
         }
         # aggregate estimates        
         nodes.num.list[[u]] <- as.list(nodes.num.vec)
