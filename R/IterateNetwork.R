@@ -3,7 +3,7 @@ iterateNetwork <- function(net.object,
                            net.iterate = 10,
                            iteration.type="random",
                            attribute=NULL,
-                           stepwise.removal=1,
+                           stepwise.removal="auto",
                            return.estimates="selected",
                            plot.estimators=TRUE,
                            plot.type="p") {
@@ -47,6 +47,10 @@ iterateNetwork <- function(net.object,
         apl.obs <- igraph::average.path.length(net.object, directed=F, unconnected=T)
         Q <- (cc.obs/cc.rand)/(apl.obs/apl.rand) 
         return(Q) }
+    
+    # load divisors function
+    divisors <- function(x) { 
+        y <- seq_len(x); y[ x%%y == 0 ] }
         
     # prepare for loop
     estimates.df <- data.frame()
@@ -76,7 +80,7 @@ iterateNetwork <- function(net.object,
         attribute.index <- attribute.index[order(attribute.index$attribute),]
         # check for singletons and fix if necessary
         attribute.index.table <- as.data.frame(table(as.character(attribute.index$attribute)))
-        if(any(attribute.index.table$Freq==1)) {
+        if(any(attribute.index.table$Freq<4)) {
             attribute.index <- merge(attribute.index, attribute.index.table, by.x="attribute", by.y="Var1", all.x=T)
             attribute.index$attribute <- as.character(attribute.index$attribute)
             attribute.index$attribute[attribute.index$Fre<round(median(attribute.index.table$Freq))] <- "ETAL"
@@ -88,11 +92,12 @@ iterateNetwork <- function(net.object,
             net.samples.list[[x]] <- attribute.index$nodes[as.character(attribute.index$attribute)==attribute.unique[x] ] }
         module.sizes <- unlist(lapply(net.samples.list, length))
         min.stepwise <- min(module.sizes)
-        print(paste0("Maximum stepwise removal for this network attribute is ", min(module.sizes)))
-        if(stepwise.removal>min.stepwise) { 
-            stop(print(paste0("Maximum stepwise removal for this network attribute is ", min(module.sizes),"! Set stepwise.removal accordingly.")))}
+        print(paste0("Max node removal for ",attribute, " is ", min(module.sizes), ". Possible stepwise removal: ",paste(divisors(min.stepwise), collapse = ", ")))        
+        if(stepwise.removal=="auto") { stepwise.removal <- net.iterate <- round(sqrt(min.stepwise)-.5) }
+        else { net.iterate <- round(min(module.sizes)/stepwise.removal) }
         net.samples <- attribute.unique
-        net.iterate <- round(min(module.sizes)/stepwise.removal)
+        if(stepwise.removal>min.stepwise | round(min(module.sizes)/stepwise.removal)*stepwise.removal>min(module.sizes)) { 
+            stop(print(paste0("Maximum stepwise node removal for this network attribute is ", round(min(module.sizes)/2), " per iteration. Decrease stepwise.removal to match this threshold.")))}
     }
     
     # start network slicing
@@ -213,8 +218,6 @@ iterateNetwork <- function(net.object,
     
     # plot data
     if(plot.estimators==TRUE) {
-        # calculate divisor
-        divisors <- function(x) { y <- seq_len(x); y[ x%%y == 0 ] }
         # plot observed estimators
         if(nrow(estimates.df)<500) { lwd.by.iteration <- 10}
         if(nrow(estimates.df)>500 && nrow(estimates.df)<1000) { lwd.by.iteration <- 3}
