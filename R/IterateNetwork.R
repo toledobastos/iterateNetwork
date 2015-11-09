@@ -102,8 +102,12 @@ iterateNetwork <- function(net.object,
     
     # start network slicing
     for(u in 1:length(net.samples)) {
+        
         # set graph sample size
-        if(iteration.type!="attribute") { graph.size <- round(net.size*net.samples[u]+.5, digits = 0) }
+        if(iteration.type!="attribute") { 
+            if(net.samples[u]==1) { graph.size <- net.size } 
+            else { graph.size <- round(net.size*net.samples[u]+.5, digits = 0) } }
+        
         # reset estimates
         nodes.num.vec <- as.numeric()
         edges.num.vec <- as.numeric()
@@ -242,7 +246,8 @@ iterateNetwork <- function(net.object,
             labels.plot2 <- paste0(rev(seq(from=100/length(estimates.df$sample), to=100, by=(100/length(estimates.df$sample)))),"%") }
         if(iteration.type=="attribute") { 
             labels.plot1 <- 1:length(estimates.df$sample)
-            labels.plot2 <- paste0(estimates.df$sample) }
+            labels.plot2 <- paste0(estimates.df$sample)
+            if(max(nchar(labels.plot2))>5) { labels.plot2[which(duplicated(estimates.df$sample))] <- "" } }
         for(i in 2:ncol(estimates.df)) {
             plot(as.numeric(estimates.df[,i]), xlab="", ylab="", col=colorsmetric[i], cex=0.5, xaxt="n",
                  main=paste(colnames(estimates.df)[i]), type=plot.type, lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
