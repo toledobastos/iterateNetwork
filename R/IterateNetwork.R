@@ -140,9 +140,6 @@ iterateNetwork <- function(net.object,
             if(iteration.type=="random") { 
                 cat("\r","Starting random iteration",j,"of",net.iterate)
                 corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% V(corenet.g)$name[sample(1:igraph::vcount(corenet.g), graph.size)])) }
-            
-            corenet.gx <- igraph::subgraph.edges(graph=corenet.g, eids=which(E(info.graph.one)$sustAggScore>0), delete.vertices=TRUE)
-            
             if(iteration.type=="degree") { 
                 cat("\r","Starting degree iteration",j,"of",net.iterate)
                 nodes.select <- names(sort(igraph::degree(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
