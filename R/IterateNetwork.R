@@ -1,7 +1,8 @@
 iterateNetwork <- function(net.object,
-                           net.samples = rev(seq(0.01:1,by=0.01)),
-                           net.iterate = 10,
                            iteration.type="random",
+                           net.samples = rev(seq(0.01:1,by=0.01)),
+                           removal="node",
+                           net.iterate = 10,
                            attribute=NULL,
                            stepwise.removal="auto",
                            return.estimates="selected",
@@ -51,10 +52,13 @@ iterateNetwork <- function(net.object,
     # load divisors function
     divisors <- function(x) { 
         y <- seq_len(x); y[ x%%y == 0 ] }
-        
+    
+    # define network sample by nodes or edges
+    if(removal=="node") { net.size <- vcount(corenet.g) }
+    if(removal=="edge") { net.size <- ecount(corenet.g) }
+    
     # prepare for loop
     estimates.df <- data.frame()
-    net.size <- vcount(corenet.g)
     nodes.num.list <- list()
     edges.num.list <- list()
     centralization.list <- list()
@@ -105,8 +109,13 @@ iterateNetwork <- function(net.object,
         
         # set graph sample size
         if(iteration.type!="attribute") { 
-            if(net.samples[u]==1) { graph.size <- net.size } 
-            else { graph.size <- round(net.size*net.samples[u]+.5, digits = 0) } }
+            if(removal=="node") {
+                if(net.samples[u]==1) { graph.size <- net.size } 
+                else { graph.size <- round(net.size*net.samples[u]+.5, digits = 0) } } 
+            if(removal=="edge") {
+                if(net.samples[u]==1) { graph.size <- net.size } 
+                else { graph.size <- round(net.size*net.samples[u]+.5, digits = 0) } } 
+        }
         
         # reset estimates
         nodes.num.vec <- as.numeric()
@@ -131,6 +140,9 @@ iterateNetwork <- function(net.object,
             if(iteration.type=="random") { 
                 cat("\r","Starting random iteration",j,"of",net.iterate)
                 corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% V(corenet.g)$name[sample(1:igraph::vcount(corenet.g), graph.size)])) }
+            
+            corenet.gx <- igraph::subgraph.edges(graph=corenet.g, eids=which(E(info.graph.one)$sustAggScore>0), delete.vertices=TRUE)
+            
             if(iteration.type=="degree") { 
                 cat("\r","Starting degree iteration",j,"of",net.iterate)
                 nodes.select <- names(sort(igraph::degree(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
@@ -243,7 +255,7 @@ iterateNetwork <- function(net.object,
         par(mfrow=plot.panels)
         if(iteration.type!="attribute") {
             labels.plot1 <- 1:length(estimates.df$sample)
-            labels.plot2 <- paste0(rev(seq(from=100/length(estimates.df$sample), to=100, by=(100/length(estimates.df$sample)))),"%") }
+            labels.plot2 <- labels.plot2 <- paste0(estimates.df$sample*100,"%") }
         if(iteration.type=="attribute") { 
             labels.plot1 <- 1:length(estimates.df$sample)
             labels.plot2 <- paste0(estimates.df$sample)
