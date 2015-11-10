@@ -269,34 +269,3 @@ iterateNetwork <- function(net.object,
     }
     return(estimates.df)
 }
-
-
-if(plot.estimators==TRUE) {
-    # plot observed estimators
-    if(nrow(estimates.df)<500) { lwd.by.iteration <- 10}
-    if(nrow(estimates.df)>500 && nrow(estimates.df)<1000) { lwd.by.iteration <- 3}
-    if(nrow(estimates.df)>1000 && nrow(estimates.df)<2000) { lwd.by.iteration <- 2}
-    if(nrow(estimates.df)>2000 && nrow(estimates.df)<4000) { lwd.by.iteration <- 1}
-    if(nrow(estimates.df)>4000) { lwd.by.iteration <- 0.3}
-    colorsmetric <- rainbow(estimates.total+1)
-    # set plot window
-    if(estimates.total<6) { plot.panels <- c(estimates.total,1) }
-    if(estimates.total==6) { plot.panels <- c(3,2) }
-    if(estimates.total>6 && estimates.total<9) { plot.panels <- c(4,4) }
-    if(estimates.total==9) { plot.panels <- c(3,3) }
-    if(estimates.total==10) { plot.panels <- c(5,2) }
-    if(estimates.total>10 && estimates.total<17) { plot.panels <- c(4,4) }
-    if(estimates.total==15) { plot.panels <- c(3,5) }
-    if(estimates.total>16 && estimates.total<20) { plot.panels <- c(4,5) }
-    if(estimates.total>20) { plot.panels <- c(5,round(median(divisors(estimates.total)))) }        
-    png(paste0("network_estimates_",net.iterate,"_iterations_over_",length(net.samples),"_projections_",iteration.type,"_",tolower(attribute),".png"), type='cairo', width=20,height=12, units='in', res=200)
-    par(mfrow=plot.panels)
-    labels.plot1 <- 1:length(estimates.df$sample)
-    labels.plot2 <- paste0(estimates.df$sample*100,"%")
-    for(i in 2:ncol(estimates.df)) {
-        plot(as.numeric(estimates.df[,i]), xlab="", ylab="", col=colorsmetric[i], cex=0.5, xaxt="n",
-             main=paste(colnames(estimates.df)[i]), type=plot.type, lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
-        axis(1, at=labels.plot1, labels=labels.plot2)
-    }
-    dev.off()
-}
