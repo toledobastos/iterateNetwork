@@ -195,7 +195,7 @@ iterateNetwork <- function(net.object,
             page.rank.vec <- c(page.rank.vec,mean(igraph::page.rank(corenet.g)$vector))
             betweenness.vec <- c(betweenness.vec,igraph::centralization.betweenness(corenet.gx)$centralization)
             density.vec <- c(density.vec,igraph::graph.density(corenet.gx))
-            largest.component.vec <- c(largest.component.vec,sum(sna::component.largest(as.network(as.matrix(igraph::get.adjacency(corenet.gx)), directed = igraph::is.directed(corenet.gx)), connected=c("strong"))))
+            largest.component.vec <- c(largest.component.vec,igraph::clusters(corenet.gx)$csize)
             small.world.vec <- c(small.world.vec, small.wordness(corenet.gx))
         }
         # aggregate estimates        
