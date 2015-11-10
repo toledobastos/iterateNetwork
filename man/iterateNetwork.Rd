@@ -17,6 +17,9 @@ The network object. Accepts both igraph and network objects
   \item{net.samples}{
 Defaults to a numeric vector of length 100 giving the fractions of the network from 1% to 100%. It can be set to any other fraction higher or lower than 1:100.
 }
+  \item{removal}{
+Defaults to node and defines whether the iteration should be sampled over nodes or edges. Removal by edge cannot be performed with node attributes (i.e. degree, betweenness, or closeness). 
+}
   \item{net.iterate}{
 Defaults to 10 and specifies the number of iterations to calculate.
 }

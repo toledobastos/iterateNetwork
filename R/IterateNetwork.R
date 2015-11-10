@@ -17,10 +17,12 @@ iterateNetwork <- function(net.object,
 
     # check for request error
     if(iteration.type=="attribute" && is.null(attribute)) { stop(print(paste0("iteration.type by attribute requires specifying vertex attribute.")))}
-    
-    # check vector names in network object
-    if(class(net.object)=="igraph" && is.null(V(net.object)$name)) { V(net.object)$name <- 1:vcount(net.object)}
+
+    # check node & edge names in network object
+    if(class(net.object)=="igraph" && is.null(V(net.object)$name)) { V(net.object)$name <- 1:vcount(net.object) }
+    if(class(net.object)=="igraph" && is.null(E(net.object)$name)) { E(net.object)$name <- 1:ecount(net.object) }
     if(class(net.object)=="network") { if(any(is.na(network::get.vertex.attribute(net.object, "name")))) { network::set.vertex.attribute(net.object, "name", value = 1:length(network::get.vertex.attribute(net.object, "name"))) } }
+    if(class(net.object)=="network") { if(is.null(network::get.edge.attribute(net.object, "name"))) { network::set.edge.attribute(net.object, attrname = "name", value = 1:network::network.edgecount(net.object)) } }
 
     # generate network & igraph objects
     if(class(net.object)=="igraph") { corenet <- intergraph::asNetwork(net.object) }
@@ -28,8 +30,11 @@ iterateNetwork <- function(net.object,
     if(class(net.object)=="network") { corenet.g <- intergraph::asIgraph(net.object) }
     if(class(net.object)=="network") { corenet <- net.object }
     
-    # check vector names for igraph object again
-    if(is.null(V(corenet.g)$name)) { V(corenet.g)$name <- V(corenet.g)$vertex.names }
+    # check again node & edge names for igraph and network objects
+    if(is.null(igraph::V(corenet.g)$name)) { igraph::V(corenet.g)$name <- igraph::V(corenet.g)$vertex.names }
+    if(is.null(igraph::E(corenet.g)$name)) { igraph::E(corenet.g)$name <- 1:igraph::ecount(net.object) }
+    if(any(is.na(network::get.vertex.attribute(corenet, "name")))) { network::set.vertex.attribute(corenet, "name", value = 1:length(network::get.vertex.attribute(corenet, "name"))) }
+    if(is.null(network::get.edge.attribute(corenet, "name"))) { network::set.edge.attribute(corenet, attrname = "name", value = 1:network::network.edgecount(corenet)) }
     
     # set seed 
     seed <- gsub("-","",as.character(Sys.Date()))
@@ -139,24 +144,41 @@ iterateNetwork <- function(net.object,
         for(j in 1:net.iterate) {
             if(iteration.type=="random") { 
                 cat("\r","Starting random iteration",j,"of",net.iterate)
-                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% V(corenet.g)$name[sample(1:igraph::vcount(corenet.g), graph.size)])) }
-            if(iteration.type=="degree") { 
+                if(removal=="node") {
+                    corenet.gx <- igraph::induced.subgraph(corenet.g, which(igraph::V(corenet.g)$name %in% igraph::V(corenet.g)$name[sample(1:igraph::vcount(corenet.g), graph.size)])) }
+                if(removal=="edge") {
+                    corenet.gx <- igraph::subgraph.edges(corenet.g, eids=which(igraph::E(corenet.g)$name %in% igraph::E(corenet.g)$name[sample(1:igraph::ecount(corenet.g), graph.size)]), delete.vertices=TRUE) }
+            }
+            if(iteration.type=="degree") {
+                if(removal=="node") {
                 cat("\r","Starting degree iteration",j,"of",net.iterate)
                 nodes.select <- names(sort(igraph::degree(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
                 corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
-            if(iteration.type=="betweenness") { 
+                if(removal=="edge") { stop(print(paste0("iteration.type ",iteration.type, " is not a valid attribute for edge iterations."))) }
+            }
+            
+            if(iteration.type=="betweenness") {
+                if(removal=="node") {
                 cat("\r","Starting betweenness iteration",j,"of",net.iterate)
                 nodes.select <- names(sort(igraph::betweenness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
                 corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                if(removal=="edge") { stop(print(paste0("iteration.type ",iteration.type, " is not a valid attribute for edge iterations."))) }
+            }
             if(iteration.type=="closeness") { 
+                if(removal=="node") {
                 cat("\r","Starting closeness iteration",j,"of",net.iterate)
                 nodes.select <- names(sort(igraph::closeness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
                 corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
-            if(iteration.type=="attribute") { 
+                if(removal=="edge") { stop(print(paste0("iteration.type ",iteration.type, " is not a valid attribute for edge iterations."))) }
+            }
+            if(iteration.type=="attribute") {
+                if(removal=="node") {
                 cat("\r","Iterative removal of targeted nodes",j,"of",net.iterate)
                 nodes.deselect <- sample(net.samples.list[[u]], stepwise.removal*j)
                 nodes.select <- V(corenet.g)$name[!V(corenet.g)$name %in% nodes.deselect]
                 corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+            if(removal=="edge") { stop(print(paste0("Edge removal by ",iteration.type, " is not yet implemented."))) }
+        }
             # collect metrics per iteration
             nodes.num.vec <- c(nodes.num.vec,igraph::vcount(corenet.gx))
             edges.num.vec <- c(edges.num.vec,igraph::ecount(corenet.gx))
@@ -248,7 +270,7 @@ iterateNetwork <- function(net.object,
         if(estimates.total==15) { plot.panels <- c(3,5) }
         if(estimates.total>16 && estimates.total<20) { plot.panels <- c(4,5) }
         if(estimates.total>20) { plot.panels <- c(5,round(median(divisors(estimates.total)))) }        
-        png(paste0("network_estimates_",net.iterate,"_iterations_over_",length(net.samples),"_projections_",iteration.type,"_",tolower(attribute),".png"), type='cairo', width=20,height=12, units='in', res=200)
+        png(paste0("network_estimates_by_",removal,"_",net.iterate,"_iterations_over_",length(net.samples),"_projections_",iteration.type,"_",tolower(attribute),".png"), type='cairo', width=20,height=12, units='in', res=200)
         par(mfrow=plot.panels)
         if(iteration.type!="attribute") {
             labels.plot1 <- 1:length(estimates.df$sample)
