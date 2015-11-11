@@ -83,8 +83,9 @@ iterateNetwork <- function(net.object,
     small.world.list <- list()
     local.clustering.list <- list()
     
-    # index node for attribute iteration
+    # index network for attribute iteration
     if(iteration.type=="attribute") {
+        if(removal=="node") { 
         attribute.index <- data.frame(nodes=igraph::V(corenet.g)$name, attribute=igraph::get.vertex.attribute(corenet.g, attribute, index=igraph::V(corenet.g)))
         attribute.index$attribute <- as.factor(as.character(attribute.index$attribute))
         attribute.index <- attribute.index[order(attribute.index$attribute),]
@@ -106,10 +107,36 @@ iterateNetwork <- function(net.object,
         if(stepwise.removal=="auto") { stepwise.removal <- net.iterate <- round(sqrt(min.stepwise)-.5) }
         else { net.iterate <- round(min(module.sizes)/stepwise.removal) }
         net.samples <- attribute.unique
-        if(stepwise.removal>min.stepwise | round(min(module.sizes)/stepwise.removal)*stepwise.removal>min(module.sizes)) { 
+        if(stepwise.removal>min.stepwise | min(module.sizes)/stepwise.removal*stepwise.removal>min(module.sizes)) { 
             stop(print(paste0("Maximum stepwise node removal for this network attribute is ", round(min(module.sizes)/2), " per iteration. Decrease stepwise.removal to match this threshold.")))}
+    } 
+    if(removal=="edge") { 
+        attribute.index <- data.frame(edges=igraph::E(corenet.g)$name, attribute=igraph::get.edge.attribute(corenet.g, attribute, index=igraph::E(corenet.g)))
+        attribute.index$attribute <- as.factor(as.character(attribute.index$attribute))
+        attribute.index <- attribute.index[order(attribute.index$attribute),]
+        # check for singletons and fix if necessary
+        attribute.index.table <- as.data.frame(table(as.character(attribute.index$attribute)))
+        if(any(attribute.index.table$Freq<4)) {
+            attribute.index <- merge(attribute.index, attribute.index.table, by.x="attribute", by.y="Var1", all.x=T)
+            attribute.index$attribute <- as.character(attribute.index$attribute)
+            attribute.index$attribute[attribute.index$Fre<round(median(attribute.index.table$Freq))] <- "ETAL"
+            attribute.index$Freq <- NULL
+        }
+        net.samples.list <- list()
+        attribute.unique <- unique(as.character(attribute.index$attribute))
+        for(x in 1:length(unique(attribute.index$attribute))) {
+            net.samples.list[[x]] <- attribute.index$edges[as.character(attribute.index$attribute)==attribute.unique[x] ] }
+        module.sizes <- unlist(lapply(net.samples.list, length))
+        min.stepwise <- min(module.sizes)
+        print(paste0("Max edge removal for ",attribute, " is ", min(module.sizes), ". Possible stepwise removal: ",paste(divisors(min.stepwise), collapse = ", ")))        
+        if(stepwise.removal=="auto") { stepwise.removal <- net.iterate <- round(sqrt(min.stepwise)-.5) }
+        else { net.iterate <- round(min(module.sizes)/stepwise.removal) }
+        net.samples <- attribute.unique
+        if(stepwise.removal>min.stepwise | min(module.sizes)/stepwise.removal*stepwise.removal>min(module.sizes)) { 
+            stop(print(paste0("Maximum stepwise edge removal for this network attribute is ", round(min(module.sizes)/2), " per iteration. Decrease stepwise.removal to match this threshold.")))}
     }
-    
+    }
+        
     # start network slicing
     for(u in 1:length(net.samples)) {
         
@@ -154,34 +181,38 @@ iterateNetwork <- function(net.object,
             }
             if(iteration.type=="degree") {
                 if(removal=="node") {
-                cat("\r","Starting degree iteration",j,"of",net.iterate)
-                nodes.select <- names(sort(igraph::degree(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
-                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                    cat("\r","Starting degree iteration",j,"of",net.iterate)
+                    nodes.select <- names(sort(igraph::degree(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
+                    corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
                 if(removal=="edge") { stop(print(paste0("iteration.type ",iteration.type, " is not a valid attribute for edge iterations."))) }
             }
-            
             if(iteration.type=="betweenness") {
                 if(removal=="node") {
-                cat("\r","Starting betweenness iteration",j,"of",net.iterate)
-                nodes.select <- names(sort(igraph::betweenness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
-                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                    cat("\r","Starting betweenness iteration",j,"of",net.iterate)
+                    nodes.select <- names(sort(igraph::betweenness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
+                    corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
                 if(removal=="edge") { stop(print(paste0("iteration.type ",iteration.type, " is not a valid attribute for edge iterations."))) }
             }
             if(iteration.type=="closeness") { 
                 if(removal=="node") {
-                cat("\r","Starting closeness iteration",j,"of",net.iterate)
-                nodes.select <- names(sort(igraph::closeness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
-                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                    cat("\r","Starting closeness iteration",j,"of",net.iterate)
+                    nodes.select <- names(sort(igraph::closeness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
+                    corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
                 if(removal=="edge") { stop(print(paste0("iteration.type ",iteration.type, " is not a valid attribute for edge iterations."))) }
             }
             if(iteration.type=="attribute") {
                 if(removal=="node") {
-                cat("\r","Iterative removal of targeted nodes",j,"of",net.iterate)
-                nodes.deselect <- sample(net.samples.list[[u]], stepwise.removal*j)
-                nodes.select <- V(corenet.g)$name[!V(corenet.g)$name %in% nodes.deselect]
-                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
-            if(removal=="edge") { stop(print(paste0("Edge removal by ",iteration.type, " is not yet implemented."))) } }
-            
+                    cat("\r","Iterative removal of targeted nodes",j,"of",net.iterate)
+                    nodes.deselect <- sample(net.samples.list[[u]], stepwise.removal*j)
+                    nodes.select <- V(corenet.g)$name[!V(corenet.g)$name %in% nodes.deselect]
+                    corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                if(removal=="edge") { 
+                    cat("\r","Iterative removal of targeted edges",j,"of",net.iterate)
+                    edges.deselect <- sample(net.samples.list[[u]], stepwise.removal*j)
+                    edges.select <- E(corenet.g)$name[!E(corenet.g)$name %in% edges.deselect]
+                    corenet.gx <- igraph::subgraph.edges(corenet.g, eids=which(igraph::E(corenet.g)$name %in% edges.select), delete.vertices=TRUE) }
+            }
+
             # collect metrics per iteration
             nodes.num.vec <- c(nodes.num.vec,igraph::vcount(corenet.gx))
             edges.num.vec <- c(edges.num.vec,igraph::ecount(corenet.gx))
