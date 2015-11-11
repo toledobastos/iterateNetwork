@@ -340,7 +340,7 @@ iterateNetwork <- function(net.object,
                 labels.plot2[which(duplicated(estimates.df$sample))] <- ""
                 las.plot <- 2 } 
         }
-        for(i in 2:ncol(estimates.df)) {
+        for(i in 2:ncol(estimates.df)) { 
             plot(as.numeric(estimates.df[,i]), xlab="", ylab="", col=colorsmetric[i], cex=0.5, xaxt="n",
                  main=paste(colnames(estimates.df)[i]), type=plot.type, lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
             axis(1, at=labels.plot1, labels=labels.plot2, las=las.plot)
