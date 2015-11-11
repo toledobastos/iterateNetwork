@@ -71,6 +71,7 @@ iterateNetwork <- function(net.object,
     eigenvector.list <- list()
     permutation.list <- list()
     transitivity.list <- list()
+    local.clustering.list <- list()
     articulations.list <- list()
     clusters.list <- list()
     avr.pathlength.list <- list()
@@ -130,6 +131,7 @@ iterateNetwork <- function(net.object,
         eigenvector.vec <- as.numeric()
         permutation.vec <- as.numeric()
         transitivity.vec <- as.numeric()
+        local.clustering <- as.numeric()
         articulations.vec <- as.numeric()
         clusters.vec <- as.numeric()
         avr.pathlength.vec <- as.numeric()
@@ -186,7 +188,8 @@ iterateNetwork <- function(net.object,
             diameter.vec <- c(diameter.vec,igraph::diameter(corenet.gx))
             eigenvector.vec <- c(eigenvector.vec,igraph::evcent(corenet.gx)$value)
             permutation.vec <- c(permutation.vec,igraph::canonical.permutation(corenet.gx)$info$nof_nodes)
-            transitivity.vec <- c(transitivity.vec,igraph::transitivity(corenet.gx, , type=c("globalundirected"), isolates=c("zero")))
+            transitivity.vec <- c(transitivity.vec,igraph::transitivity(corenet.gx,type=c("globalundirected"),isolates=c("zero")))
+            local.clustering.vec <- c(local.clustering.vec,mean(igraph::transitivity(corenet.gx,type=c("localundirected"),isolates=c("zero"))))
             articulations.vec <- c(articulations.vec,length(igraph::articulation.points(corenet.gx)))
             clusters.vec <- c(clusters.vec,igraph::no.clusters(corenet.gx))
             avr.pathlength.vec <- c(avr.pathlength.vec,igraph::average.path.length(corenet.gx))
@@ -206,6 +209,7 @@ iterateNetwork <- function(net.object,
         eigenvector.list[[u]] <- as.list(eigenvector.vec)
         permutation.list[[u]] <- as.list(permutation.vec)
         transitivity.list[[u]] <- as.list(transitivity.vec)
+        local.clustering.list[[u]] <- as.list(local.clustering.vec)
         articulations.list[[u]] <- as.list(articulations.vec)
         clusters.list[[u]] <- as.list(clusters.vec)
         avr.pathlength.list[[u]] <- as.list(avr.pathlength.vec)
@@ -229,6 +233,7 @@ iterateNetwork <- function(net.object,
                                eigenvector=unlist(eigenvector.list),
                                permutation=unlist(permutation.list),
                                transitivity=unlist(transitivity.list),
+                               local.clustering=unlist(local.clustering.list),
                                articulations=unlist(articulations.list),
                                cluster=unlist(clusters.list),
                                path.length=unlist(avr.pathlength.list),
