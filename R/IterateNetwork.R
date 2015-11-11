@@ -240,10 +240,11 @@ iterateNetwork <- function(net.object,
                                largest.component=unlist(largest.component.list),
                                small.world=unlist(small.world.list))
 
-    # select output 
-    if(unique(as.character(return.estimates)!="ALL")) {
-        if(return.estimates=="selected") { estimates.df <- estimates.df[,c(1:6,8:12,14:17)] } else {
-            estimates.df <- estimates.df[,c(return.estimates)] } }
+    # select output
+    if(!is.character(return.estimates)) { estimates.df <- estimates.df[,c(return.estimates)] }
+    if(is.character(return.estimates)) {
+        if(return.estimates=="selected") { estimates.df <- estimates.df[,c(1:6,8:12,14:17)] }
+        if(return.estimates=="ALL") { estimates.df <- estimates.df } }
     estimates.total <- ncol(estimates.df)
     
     # add identifier for each network projection
