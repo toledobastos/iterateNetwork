@@ -14,16 +14,16 @@ iterateNetwork <- function(net.object,
     require(network)
     require(igraph)
     require(sna)
-
+    
     # check for request error
     if(iteration.type=="attribute" && is.null(attribute)) { stop(print(paste0("iteration.type by attribute requires specifying vertex attribute.")))}
-
+    
     # check node & edge names in network object
     if(class(net.object)=="igraph" && is.null(V(net.object)$name)) { V(net.object)$name <- 1:vcount(net.object) }
     if(class(net.object)=="igraph" && is.null(E(net.object)$name)) { E(net.object)$name <- 1:ecount(net.object) }
     if(class(net.object)=="network") { if(any(is.na(network::get.vertex.attribute(net.object, "name")))) { network::set.vertex.attribute(net.object, "name", value = 1:length(network::get.vertex.attribute(net.object, "name"))) } }
     if(class(net.object)=="network") { if(is.null(network::get.edge.attribute(net.object, "name"))) { network::set.edge.attribute(net.object, attrname = "name", value = 1:network::network.edgecount(net.object)) } }
-
+    
     # generate network & igraph objects
     if(class(net.object)=="igraph") { corenet <- intergraph::asNetwork(net.object) }
     if(class(net.object)=="igraph") { corenet.g <- net.object }
@@ -151,34 +151,34 @@ iterateNetwork <- function(net.object,
             }
             if(iteration.type=="degree") {
                 if(removal=="node") {
-                cat("\r","Starting degree iteration",j,"of",net.iterate)
-                nodes.select <- names(sort(igraph::degree(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
-                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                    cat("\r","Starting degree iteration",j,"of",net.iterate)
+                    nodes.select <- names(sort(igraph::degree(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
+                    corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
                 if(removal=="edge") { stop(print(paste0("iteration.type ",iteration.type, " is not a valid attribute for edge iterations."))) }
             }
             
             if(iteration.type=="betweenness") {
                 if(removal=="node") {
-                cat("\r","Starting betweenness iteration",j,"of",net.iterate)
-                nodes.select <- names(sort(igraph::betweenness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
-                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                    cat("\r","Starting betweenness iteration",j,"of",net.iterate)
+                    nodes.select <- names(sort(igraph::betweenness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
+                    corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
                 if(removal=="edge") { stop(print(paste0("iteration.type ",iteration.type, " is not a valid attribute for edge iterations."))) }
             }
             if(iteration.type=="closeness") { 
                 if(removal=="node") {
-                cat("\r","Starting closeness iteration",j,"of",net.iterate)
-                nodes.select <- names(sort(igraph::closeness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
-                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                    cat("\r","Starting closeness iteration",j,"of",net.iterate)
+                    nodes.select <- names(sort(igraph::closeness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
+                    corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
                 if(removal=="edge") { stop(print(paste0("iteration.type ",iteration.type, " is not a valid attribute for edge iterations."))) }
             }
             if(iteration.type=="attribute") {
                 if(removal=="node") {
-                cat("\r","Iterative removal of targeted nodes",j,"of",net.iterate)
-                nodes.deselect <- sample(net.samples.list[[u]], stepwise.removal*j)
-                nodes.select <- V(corenet.g)$name[!V(corenet.g)$name %in% nodes.deselect]
-                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
-            if(removal=="edge") { stop(print(paste0("Edge removal by ",iteration.type, " is not yet implemented."))) }
-        }
+                    cat("\r","Iterative removal of targeted nodes",j,"of",net.iterate)
+                    nodes.deselect <- sample(net.samples.list[[u]], stepwise.removal*j)
+                    nodes.select <- V(corenet.g)$name[!V(corenet.g)$name %in% nodes.deselect]
+                    corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                if(removal=="edge") { stop(print(paste0("Edge removal by ",iteration.type, " is not yet implemented."))) }
+            }
             # collect metrics per iteration
             nodes.num.vec <- c(nodes.num.vec,igraph::vcount(corenet.gx))
             edges.num.vec <- c(edges.num.vec,igraph::ecount(corenet.gx))
@@ -239,11 +239,11 @@ iterateNetwork <- function(net.object,
                                density=unlist(density.list),
                                largest.component=unlist(largest.component.list),
                                small.world=unlist(small.world.list))
-
+    
     # select output
-    if(return.estimates!="ALL") {
-        if(return.estimates=="selected") { estimates.df <- estimates.df[,c(1:6,8:12,14:17)] } else {
-            estimates.df <- estimates.df[,c(return.estimates)] } }
+    if(as.character(return.estimates)!="ALL") {
+        if(return.estimates=="selected") { estimates.df <- estimates.df[,c(1:6,8:12,14:17)] } 
+        else { estimates.df <- estimates.df[,c(return.estimates)] } }
     estimates.total <- ncol(estimates.df)
     
     # add identifier for each network projection
