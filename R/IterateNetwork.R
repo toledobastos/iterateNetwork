@@ -249,7 +249,7 @@ iterateNetwork <- function(net.object,
             density.vec <- c(density.vec,igraph::graph.density(corenet.gx))
             small.world.vec <- c(small.world.vec, small.wordness(corenet.gx))
             #         largest.component.vec <- c(largest.component.vec,sum(sna::component.largest(as.network(as.matrix(igraph::get.adjacency(corenet.gx)), directed = igraph::is.directed(corenet.gx)), connected=c("strong"))))
-            largest.component.vec <- c(largest.component.vec,igraph::clusters(corenet.gx)$csize[1])
+            largest.component.vec <- c(largest.component.vec,base::max(igraph::clusters(corenet.gx)$csize))
         }
         # aggregate estimates        
         nodes.num.list[[u]] <- as.list(nodes.num.vec)
