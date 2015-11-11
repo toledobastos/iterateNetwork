@@ -310,7 +310,7 @@ iterateNetwork <- function(net.object,
     # plot data
     if(plot.estimators==TRUE) {
         # plot observed estimators
-        if(nrow(estimates.df)<=500) { lwd.by.iteration <- 10}
+        if(nrow(estimates.df)<=500) { lwd.by.iteration <- 4}
         if(nrow(estimates.df)>500 && nrow(estimates.df)<=1000) { lwd.by.iteration <- 3}
         if(nrow(estimates.df)>1000 && nrow(estimates.df)<=2000) { lwd.by.iteration <- 2}
         if(nrow(estimates.df)>2000 && nrow(estimates.df)<=4000) { lwd.by.iteration <- 1}
