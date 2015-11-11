@@ -38,18 +38,13 @@ iterateNetwork <- function(net.object,
     if(any(is.na(network::get.vertex.attribute(corenet, "name")))) { network::set.vertex.attribute(corenet, "name", value = 1:length(network::get.vertex.attribute(corenet, "name"))) }
     if(is.null(network::get.edge.attribute(corenet, "name"))) { network::set.edge.attribute(corenet, attrname = "name", value = 1:network::network.edgecount(corenet)) }
     
-    # transform node to edge attribute for node.interaction 
+    # transform node to edge attribute for node.interaction
     if(removal=="node.interaction") {
         df1 <- as.data.frame(igraph::get.edgelist(corenet.g))
         df1$V1 <- as.character(df1$V1)
         df1$V2 <- as.character(df1$V2)
-<<<<<<< HEAD
         user.from <- merge(df1, data.frame(V1=as.character(igraph::V(corenet.g)$name), attr=igraph::get.vertex.attribute(corenet.g, attribute)), by="V1", all.x=T)[3]$attr
         user.to <- merge(df1, data.frame(V2=as.character(igraph::V(corenet.g)$name), attr=igraph::get.vertex.attribute(corenet.g, attribute)), by="V2", all.x=T)[3]$attr
-=======
-        user.from <- merge(df1, data.frame(V1=as.character(igraph::V(corenet.g)), attr=igraph::get.vertex.attribute(corenet.g, attribute)), by="V1", all.x=T)[3]$attr
-        user.to <- merge(df1, data.frame(V2=as.character(igraph::V(corenet.g)), attr=igraph::get.vertex.attribute(corenet.g, attribute)), by="V2", all.x=T)[3]$attr
->>>>>>> f1dd408ebc93902fa114e2b50b5e5c78c303699e
         edge.attr <- paste(user.from, user.to, sep="+")
         if(!igraph::is.directed(corenet.g)) {
             edge.attr.df <- as.data.frame(igraph::get.edgelist(igraph::graph.data.frame(data.frame(from=user.from, to=user.to), directed=F)))
