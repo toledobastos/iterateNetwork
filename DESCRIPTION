@@ -1,9 +1,9 @@
 Package: iterateNetwork
 Type: Package
 Title: Simulation and iteration over network metrics
-Version: 0.1.7
+Version: 0.1.8
 Date: 2015-10-30
 Author: Marco T. Bastos
 Maintainer: Marco T. Bastos <marco@toledobastos.com>
-Description: The function iterateNetwork takes an igraph or network object and calculates network metrics over subsamples of the network. The argument net.samples defaults to a numeric vector of length 100 giving the fractions of the network from 1% to 100%, but it can be set to any other fraction higher or lower than 1:100. The argument iteration.type defines the type of iteration and defaults to random, but it also accepts degree, betweenness, closeness, and attribute. If iteration.type='attribute' you have to define which vertex attribute to run the iteration with attribute=vertex.attribute.name and can assing a number to stepwise.removal, defaults to 'auto' to calculate the ideal number of iterations and stepwise node removal. The argument removal defaults to node and defines whether the iteration should be sampled over nodes or edges. The argument net.iterate defaults to 10 and specifies the number of iterations to calculate. Lastly, the argument plot.estimators defaults to TRUE to include a plot of the estimates generated during the iterations.
+Description: iterateNetwork takes an igraph or network object and calculates network metrics over subsamples of the network. Simulations can be run over random samples, but also degree, betweenness, and closeness distribution. Iterative sampling can also be defined by node and edge attributes or by node intearaction.
 License: GPL (>= 2)

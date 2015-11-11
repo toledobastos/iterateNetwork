@@ -18,7 +18,7 @@ The network object. Accepts both igraph and network objects
 Defaults to a numeric vector of length 100 giving the fractions of the network from 1% to 100%. It can be set to any other fraction higher or lower than 1:100.
 }
   \item{removal}{
-Defaults to node and defines whether the iteration should be sampled over nodes or edges. Removal by edge cannot be performed with node attributes (i.e. degree, betweenness, or closeness). 
+Defaults to node and defines whether the iteration should be sampled over nodes, edges, or node.interaction. Removal by edge cannot be performed over node metrics (i.e. degree, betweenness, or closeness), but node.interaction accepts node attributes and will generate edge attributes based on node interactions. 
 }
   \item{net.iterate}{
 Defaults to 10 and specifies the number of iterations to calculate.
@@ -30,10 +30,10 @@ Defaults to random iteration. It also accepts degree, betweenness, closeness, an
 Required for running iterations over vertex attribute. Defaults to NULL.
 }
   \item{stepwise.removal}{
-Defines the sample of size of targeted nodes to be removed each iteration. Required for running iterations over vertex attribute. Defaults to 1.
+Defines the sample of size of targeted nodes to be removed each iteration. Required for running iterations over vertex attribute. Defaults to auto which calculates the ideal fraction of stepwise.removal and net.iterate based on the maximum number of nodes across subgroups of an attribute.
 }
   \item{plot.estimators}{
-Defaults to TRUE to include a plot of the estimates generated during the iterations.
+Defaults to TRUE to include a plot of the estimates generated during iterations.
 }
 }
   \item{plot.type}{
@@ -59,7 +59,6 @@ Defines which network metrics to iterate over. It defaults to a selection of 15 
 # 16. density
 # 17. largest.component
 # 18. small.world
-
 by setting return.estimates=c(1:10,12:17), with numbers indicating the above variables.
 }
 }

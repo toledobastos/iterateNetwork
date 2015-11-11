@@ -1,13 +1,13 @@
 iterateNetwork <- function(net.object,
-                           iteration.type="random",
+                           iteration.type ="random",
                            net.samples = rev(seq(0.01:1,by=0.01)),
-                           removal="node",
+                           removal = "node",
                            net.iterate = 10,
                            attribute=NULL,
-                           stepwise.removal="auto",
-                           return.estimates="ALL",
-                           plot.estimators=TRUE,
-                           plot.type="p") {
+                           stepwise.removal = "auto",
+                           return.estimates = "ALL",
+                           plot.estimators = TRUE,
+                           plot.type = "p") {
     
     # load dependencies
     require(intergraph)
@@ -17,6 +17,8 @@ iterateNetwork <- function(net.object,
 
     # check for request error
     if(iteration.type=="attribute" && is.null(attribute)) { stop(print(paste0("iteration.type by attribute requires specifying vertex attribute.")))}
+    if(iteration.type=="node.interaction" && is.null(attribute)) { stop(print(paste0("iteration.type by attribute requires specifying node.interaction attribute.")))}
+    if(iteration.type=="edge" && is.null(attribute)) { stop(print(paste0("iteration.type by edge requires specifying edge attribute.")))}
 
     # check node & edge names in network object
     if(class(net.object)=="igraph" && is.null(V(net.object)$name)) { V(net.object)$name <- 1:vcount(net.object) }
@@ -35,6 +37,21 @@ iterateNetwork <- function(net.object,
     if(is.null(igraph::E(corenet.g)$name)) { igraph::E(corenet.g)$name <- 1:igraph::ecount(net.object) }
     if(any(is.na(network::get.vertex.attribute(corenet, "name")))) { network::set.vertex.attribute(corenet, "name", value = 1:length(network::get.vertex.attribute(corenet, "name"))) }
     if(is.null(network::get.edge.attribute(corenet, "name"))) { network::set.edge.attribute(corenet, attrname = "name", value = 1:network::network.edgecount(corenet)) }
+    
+    # transform node to edge attribute for node.interaction 
+    if(removal=="node.interaction") {
+        df1 <- as.data.frame(igraph::get.edgelist(corenet.g))
+        df1$V1 <- as.character(df1$V1)
+        df1$V2 <- as.character(df1$V2)
+        user.from <- merge(df1, data.frame(V1=as.character(igraph::V(corenet.g)$name), attr=igraph::get.vertex.attribute(corenet.g, attribute)), by="V1", all.x=T)[3]$attr
+        user.to <- merge(df1, data.frame(V2=as.character(igraph::V(corenet.g)$name), attr=igraph::get.vertex.attribute(corenet.g, attribute)), by="V2", all.x=T)[3]$attr
+        edge.attr <- paste(user.from, user.to, sep="+")
+        if(!igraph::is.directed(corenet.g)) {
+            edge.attr.df <- as.data.frame(igraph::get.edgelist(igraph::graph.data.frame(data.frame(from=user.from, to=user.to), directed=F)))
+            edge.attr <- paste(edge.attr.df$V1, edge.attr.df$V2, sep="+") }
+        corenet.g <- igraph::set.edge.attribute(graph=corenet.g, name=attribute, value=edge.attr)
+        removal="edge"
+    }
     
     # set seed 
     seed <- gsub("-","",as.character(Sys.Date()))
@@ -293,10 +310,10 @@ iterateNetwork <- function(net.object,
     # plot data
     if(plot.estimators==TRUE) {
         # plot observed estimators
-        if(nrow(estimates.df)<500) { lwd.by.iteration <- 10}
-        if(nrow(estimates.df)>500 && nrow(estimates.df)<1000) { lwd.by.iteration <- 3}
-        if(nrow(estimates.df)>1000 && nrow(estimates.df)<2000) { lwd.by.iteration <- 2}
-        if(nrow(estimates.df)>2000 && nrow(estimates.df)<4000) { lwd.by.iteration <- 1}
+        if(nrow(estimates.df)<=500) { lwd.by.iteration <- 10}
+        if(nrow(estimates.df)>500 && nrow(estimates.df)<=1000) { lwd.by.iteration <- 3}
+        if(nrow(estimates.df)>1000 && nrow(estimates.df)<=2000) { lwd.by.iteration <- 2}
+        if(nrow(estimates.df)>2000 && nrow(estimates.df)<=4000) { lwd.by.iteration <- 1}
         if(nrow(estimates.df)>4000) { lwd.by.iteration <- 0.3}
         colorsmetric <- rainbow(estimates.total+1)
         # set plot window
@@ -326,5 +343,6 @@ iterateNetwork <- function(net.object,
         }
         dev.off()
     }
+    print(paste0("Iteration completed. Plot saved at ",getwd(),"/network_estimates_by_",removal,"_",net.iterate,"_iterations_over_",length(net.samples),"_projections_",iteration.type,"_",tolower(attribute),".png"))
     return(estimates.df)
 }
