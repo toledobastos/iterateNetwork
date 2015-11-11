@@ -241,7 +241,11 @@ iterateNetwork <- function(net.object,
                                small.world=unlist(small.world.list))
 
     # select output
+<<<<<<< HEAD
     if(unique(as.character(return.estimates)!="ALL")) {
+=======
+    if(as.character(return.estimates)!="ALL") {
+>>>>>>> 21efb3fb365572a69234ab4059ba2fd5953b3db9
         if(return.estimates=="selected") { estimates.df <- estimates.df[,c(1:6,8:12,14:17)] } else {
             estimates.df <- estimates.df[,c(return.estimates)] } }
     estimates.total <- ncol(estimates.df)
