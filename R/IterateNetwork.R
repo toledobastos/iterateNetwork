@@ -131,7 +131,7 @@ iterateNetwork <- function(net.object,
         eigenvector.vec <- as.numeric()
         permutation.vec <- as.numeric()
         transitivity.vec <- as.numeric()
-        local.clustering <- as.numeric()
+        local.clustering.vec <- as.numeric()
         articulations.vec <- as.numeric()
         clusters.vec <- as.numeric()
         avr.pathlength.vec <- as.numeric()
