@@ -330,7 +330,7 @@ iterateNetwork <- function(net.object,
         las.plot <- 0
         png(paste0("network_estimates_by_",removal,"_",net.iterate,"_iterations_over_",length(net.samples),"_projections_",iteration.type,"_",tolower(attribute),".png"), type='cairo', width=plot.panels[2]*4,height=plot.panels[1]*4, units='in', res=200)
         par(mfrow=plot.panels)
-        if(iteration.type!="attribute") {
+        if(iteration.type!="attribute") { 
             labels.plot1 <- 1:length(estimates.df$sample)
             labels.plot2 <- labels.plot2 <- paste0(estimates.df$sample*100,"%") }
         if(iteration.type=="attribute") { 
