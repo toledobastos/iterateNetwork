@@ -316,7 +316,7 @@ iterateNetwork <- function(net.object,
         if(nrow(estimates.df)>2000 && nrow(estimates.df)<=4000) { lwd.by.iteration <- 1}
         if(nrow(estimates.df)>4000) { lwd.by.iteration <- 0.3}
         colorsmetric <- rainbow(estimates.total+1)
-        # set plot window
+        # set plot window 
         if(estimates.total<6) { plot.panels <- c(estimates.total,1) }
         if(estimates.total==6) { plot.panels <- c(3,2) }
         if(estimates.total>6 && estimates.total<9) { plot.panels <- c(4,4) }
