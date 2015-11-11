@@ -14,16 +14,16 @@ iterateNetwork <- function(net.object,
     require(network)
     require(igraph)
     require(sna)
-    
+
     # check for request error
     if(iteration.type=="attribute" && is.null(attribute)) { stop(print(paste0("iteration.type by attribute requires specifying vertex attribute.")))}
-    
+
     # check node & edge names in network object
     if(class(net.object)=="igraph" && is.null(V(net.object)$name)) { V(net.object)$name <- 1:vcount(net.object) }
     if(class(net.object)=="igraph" && is.null(E(net.object)$name)) { E(net.object)$name <- 1:ecount(net.object) }
     if(class(net.object)=="network") { if(any(is.na(network::get.vertex.attribute(net.object, "name")))) { network::set.vertex.attribute(net.object, "name", value = 1:length(network::get.vertex.attribute(net.object, "name"))) } }
     if(class(net.object)=="network") { if(is.null(network::get.edge.attribute(net.object, "name"))) { network::set.edge.attribute(net.object, attrname = "name", value = 1:network::network.edgecount(net.object)) } }
-    
+
     # generate network & igraph objects
     if(class(net.object)=="igraph") { corenet <- intergraph::asNetwork(net.object) }
     if(class(net.object)=="igraph") { corenet.g <- net.object }
@@ -71,7 +71,6 @@ iterateNetwork <- function(net.object,
     eigenvector.list <- list()
     permutation.list <- list()
     transitivity.list <- list()
-    local.clustering.list <- list()
     articulations.list <- list()
     clusters.list <- list()
     avr.pathlength.list <- list()
@@ -131,7 +130,6 @@ iterateNetwork <- function(net.object,
         eigenvector.vec <- as.numeric()
         permutation.vec <- as.numeric()
         transitivity.vec <- as.numeric()
-        local.clustering.vec <- as.numeric()
         articulations.vec <- as.numeric()
         clusters.vec <- as.numeric()
         avr.pathlength.vec <- as.numeric()
@@ -153,34 +151,34 @@ iterateNetwork <- function(net.object,
             }
             if(iteration.type=="degree") {
                 if(removal=="node") {
-                    cat("\r","Starting degree iteration",j,"of",net.iterate)
-                    nodes.select <- names(sort(igraph::degree(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
-                    corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                cat("\r","Starting degree iteration",j,"of",net.iterate)
+                nodes.select <- names(sort(igraph::degree(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
+                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
                 if(removal=="edge") { stop(print(paste0("iteration.type ",iteration.type, " is not a valid attribute for edge iterations."))) }
             }
             
             if(iteration.type=="betweenness") {
                 if(removal=="node") {
-                    cat("\r","Starting betweenness iteration",j,"of",net.iterate)
-                    nodes.select <- names(sort(igraph::betweenness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
-                    corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                cat("\r","Starting betweenness iteration",j,"of",net.iterate)
+                nodes.select <- names(sort(igraph::betweenness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
+                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
                 if(removal=="edge") { stop(print(paste0("iteration.type ",iteration.type, " is not a valid attribute for edge iterations."))) }
             }
             if(iteration.type=="closeness") { 
                 if(removal=="node") {
-                    cat("\r","Starting closeness iteration",j,"of",net.iterate)
-                    nodes.select <- names(sort(igraph::closeness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
-                    corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+                cat("\r","Starting closeness iteration",j,"of",net.iterate)
+                nodes.select <- names(sort(igraph::closeness(corenet.g), decreasing=T)[(igraph::vcount(corenet.g)-graph.size):igraph::vcount(corenet.g)])
+                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
                 if(removal=="edge") { stop(print(paste0("iteration.type ",iteration.type, " is not a valid attribute for edge iterations."))) }
             }
             if(iteration.type=="attribute") {
                 if(removal=="node") {
-                    cat("\r","Iterative removal of targeted nodes",j,"of",net.iterate)
-                    nodes.deselect <- sample(net.samples.list[[u]], stepwise.removal*j)
-                    nodes.select <- V(corenet.g)$name[!V(corenet.g)$name %in% nodes.deselect]
-                    corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
-                if(removal=="edge") { stop(print(paste0("Edge removal by ",iteration.type, " is not yet implemented."))) }
-            }
+                cat("\r","Iterative removal of targeted nodes",j,"of",net.iterate)
+                nodes.deselect <- sample(net.samples.list[[u]], stepwise.removal*j)
+                nodes.select <- V(corenet.g)$name[!V(corenet.g)$name %in% nodes.deselect]
+                corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
+            if(removal=="edge") { stop(print(paste0("Edge removal by ",iteration.type, " is not yet implemented."))) }
+        }
             # collect metrics per iteration
             nodes.num.vec <- c(nodes.num.vec,igraph::vcount(corenet.gx))
             edges.num.vec <- c(edges.num.vec,igraph::ecount(corenet.gx))
@@ -188,8 +186,7 @@ iterateNetwork <- function(net.object,
             diameter.vec <- c(diameter.vec,igraph::diameter(corenet.gx))
             eigenvector.vec <- c(eigenvector.vec,igraph::evcent(corenet.gx)$value)
             permutation.vec <- c(permutation.vec,igraph::canonical.permutation(corenet.gx)$info$nof_nodes)
-            transitivity.vec <- c(transitivity.vec,igraph::transitivity(corenet.gx,type=c("globalundirected"),isolates=c("zero")))
-            local.clustering.vec <- c(local.clustering.vec,mean(igraph::transitivity(corenet.gx,type=c("localundirected"),isolates=c("zero"))))
+            transitivity.vec <- c(transitivity.vec,igraph::transitivity(corenet.gx))
             articulations.vec <- c(articulations.vec,length(igraph::articulation.points(corenet.gx)))
             clusters.vec <- c(clusters.vec,igraph::no.clusters(corenet.gx))
             avr.pathlength.vec <- c(avr.pathlength.vec,igraph::average.path.length(corenet.gx))
@@ -198,7 +195,7 @@ iterateNetwork <- function(net.object,
             page.rank.vec <- c(page.rank.vec,mean(igraph::page.rank(corenet.g)$vector))
             betweenness.vec <- c(betweenness.vec,igraph::centralization.betweenness(corenet.gx)$centralization)
             density.vec <- c(density.vec,igraph::graph.density(corenet.gx))
-            largest.component.vec <- c(largest.component.vec,igraph::clusters(corenet.gx)$csize)
+            largest.component.vec <- c(largest.component.vec,sum(sna::component.largest(as.network(as.matrix(igraph::get.adjacency(corenet.gx)), directed = igraph::is.directed(corenet.gx)), connected=c("strong"))))
             small.world.vec <- c(small.world.vec, small.wordness(corenet.gx))
         }
         # aggregate estimates        
@@ -209,7 +206,6 @@ iterateNetwork <- function(net.object,
         eigenvector.list[[u]] <- as.list(eigenvector.vec)
         permutation.list[[u]] <- as.list(permutation.vec)
         transitivity.list[[u]] <- as.list(transitivity.vec)
-        local.clustering.list[[u]] <- as.list(local.clustering.vec)
         articulations.list[[u]] <- as.list(articulations.vec)
         clusters.list[[u]] <- as.list(clusters.vec)
         avr.pathlength.list[[u]] <- as.list(avr.pathlength.vec)
@@ -233,7 +229,6 @@ iterateNetwork <- function(net.object,
                                eigenvector=unlist(eigenvector.list),
                                permutation=unlist(permutation.list),
                                transitivity=unlist(transitivity.list),
-                               local.clustering=unlist(local.clustering.list),
                                articulations=unlist(articulations.list),
                                cluster=unlist(clusters.list),
                                path.length=unlist(avr.pathlength.list),
@@ -244,11 +239,11 @@ iterateNetwork <- function(net.object,
                                density=unlist(density.list),
                                largest.component=unlist(largest.component.list),
                                small.world=unlist(small.world.list))
-    
+
     # select output
-    if(as.character(return.estimates)!="ALL") {
-        if(return.estimates=="selected") { estimates.df <- estimates.df[,c(1:6,8:12,14:17)] } 
-        else { estimates.df <- estimates.df[,c(return.estimates)] } }
+    if(as.character(return.estimates!="ALL")) {
+        if(return.estimates=="selected") { estimates.df <- estimates.df[,c(1:6,8:12,14:17)] } else {
+            estimates.df <- estimates.df[,c(return.estimates)] } }
     estimates.total <- ncol(estimates.df)
     
     # add identifier for each network projection
