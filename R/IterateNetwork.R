@@ -5,7 +5,7 @@ iterateNetwork <- function(net.object,
                            net.iterate = 10,
                            attribute=NULL,
                            stepwise.removal="auto",
-                           return.estimates="selected",
+                           return.estimates="ALL",
                            plot.estimators=TRUE,
                            plot.type="p") {
     
@@ -81,6 +81,7 @@ iterateNetwork <- function(net.object,
     density.list <- list()
     largest.component.list <- list()
     small.world.list <- list()
+    local.clustering.list <- list()
     
     # index node for attribute iteration
     if(iteration.type=="attribute") {
@@ -130,6 +131,7 @@ iterateNetwork <- function(net.object,
         eigenvector.vec <- as.numeric()
         permutation.vec <- as.numeric()
         transitivity.vec <- as.numeric()
+        local.clustering.vec <- as.numeric()
         articulations.vec <- as.numeric()
         clusters.vec <- as.numeric()
         avr.pathlength.vec <- as.numeric()
@@ -140,6 +142,7 @@ iterateNetwork <- function(net.object,
         density.vec <- as.numeric()
         largest.component.vec <- as.numeric()
         small.world.vec <- as.numeric()
+        
         # start iteration
         for(j in 1:net.iterate) {
             if(iteration.type=="random") { 
@@ -177,8 +180,8 @@ iterateNetwork <- function(net.object,
                 nodes.deselect <- sample(net.samples.list[[u]], stepwise.removal*j)
                 nodes.select <- V(corenet.g)$name[!V(corenet.g)$name %in% nodes.deselect]
                 corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select)) }
-            if(removal=="edge") { stop(print(paste0("Edge removal by ",iteration.type, " is not yet implemented."))) }
-        }
+            if(removal=="edge") { stop(print(paste0("Edge removal by ",iteration.type, " is not yet implemented."))) } }
+            
             # collect metrics per iteration
             nodes.num.vec <- c(nodes.num.vec,igraph::vcount(corenet.gx))
             edges.num.vec <- c(edges.num.vec,igraph::ecount(corenet.gx))
@@ -186,7 +189,8 @@ iterateNetwork <- function(net.object,
             diameter.vec <- c(diameter.vec,igraph::diameter(corenet.gx))
             eigenvector.vec <- c(eigenvector.vec,igraph::evcent(corenet.gx)$value)
             permutation.vec <- c(permutation.vec,igraph::canonical.permutation(corenet.gx)$info$nof_nodes)
-            transitivity.vec <- c(transitivity.vec,igraph::transitivity(corenet.gx))
+            transitivity.vec <- c(transitivity.vec,igraph::transitivity(corenet.gx,type=c("globalundirected"),isolates=c("zero")))
+            local.clustering.vec <- c(local.clustering.vec,mean(igraph::transitivity(corenet.gx,type=c("localundirected"),isolates=c("zero"))))
             articulations.vec <- c(articulations.vec,length(igraph::articulation.points(corenet.gx)))
             clusters.vec <- c(clusters.vec,igraph::no.clusters(corenet.gx))
             avr.pathlength.vec <- c(avr.pathlength.vec,igraph::average.path.length(corenet.gx))
@@ -195,8 +199,9 @@ iterateNetwork <- function(net.object,
             page.rank.vec <- c(page.rank.vec,mean(igraph::page.rank(corenet.g)$vector))
             betweenness.vec <- c(betweenness.vec,igraph::centralization.betweenness(corenet.gx)$centralization)
             density.vec <- c(density.vec,igraph::graph.density(corenet.gx))
-            largest.component.vec <- c(largest.component.vec,sum(sna::component.largest(as.network(as.matrix(igraph::get.adjacency(corenet.gx)), directed = igraph::is.directed(corenet.gx)), connected=c("strong"))))
             small.world.vec <- c(small.world.vec, small.wordness(corenet.gx))
+            #         largest.component.vec <- c(largest.component.vec,sum(sna::component.largest(as.network(as.matrix(igraph::get.adjacency(corenet.gx)), directed = igraph::is.directed(corenet.gx)), connected=c("strong"))))
+            largest.component.vec <- c(largest.component.vec,igraph::clusters(corenet.gx)$csize[1])
         }
         # aggregate estimates        
         nodes.num.list[[u]] <- as.list(nodes.num.vec)
@@ -206,6 +211,7 @@ iterateNetwork <- function(net.object,
         eigenvector.list[[u]] <- as.list(eigenvector.vec)
         permutation.list[[u]] <- as.list(permutation.vec)
         transitivity.list[[u]] <- as.list(transitivity.vec)
+        local.clustering.list[[u]] <- as.list(local.clustering.vec)
         articulations.list[[u]] <- as.list(articulations.vec)
         clusters.list[[u]] <- as.list(clusters.vec)
         avr.pathlength.list[[u]] <- as.list(avr.pathlength.vec)
@@ -224,15 +230,16 @@ iterateNetwork <- function(net.object,
     }
     estimates.df <- data.frame(nodes=unlist(nodes.num.list),
                                edges=unlist(edges.num.list),
+                               degree=unlist(avr.degree.list),
+                               eigenvector=unlist(eigenvector.list),
+                               local.clustering=unlist(local.clustering.list),
                                centralization=unlist(centralization.list),
                                diameter=unlist(diameter.list),
-                               eigenvector=unlist(eigenvector.list),
                                permutation=unlist(permutation.list),
                                transitivity=unlist(transitivity.list),
                                articulations=unlist(articulations.list),
                                cluster=unlist(clusters.list),
                                path.length=unlist(avr.pathlength.list),
-                               degree=unlist(avr.degree.list),
                                closeness=unlist(avr.closeness.list),
                                page.rank=unlist(page.rank.list),
                                betweenness=unlist(betweenness.list),
@@ -269,9 +276,10 @@ iterateNetwork <- function(net.object,
         if(estimates.total==10) { plot.panels <- c(5,2) }
         if(estimates.total>10 && estimates.total<17) { plot.panels <- c(4,4) }
         if(estimates.total==15) { plot.panels <- c(3,5) }
-        if(estimates.total>16 && estimates.total<20) { plot.panels <- c(4,5) }
+        if(estimates.total>16 && estimates.total<18) { plot.panels <- c(4,5) }
+        if(estimates.total==18) { plot.panels <- c(3,6) }
         if(estimates.total>20) { plot.panels <- c(5,round(median(divisors(estimates.total)))) }        
-        png(paste0("network_estimates_by_",removal,"_",net.iterate,"_iterations_over_",length(net.samples),"_projections_",iteration.type,"_",tolower(attribute),".png"), type='cairo', width=20,height=12, units='in', res=200)
+        png(paste0("network_estimates_by_",removal,"_",net.iterate,"_iterations_over_",length(net.samples),"_projections_",iteration.type,"_",tolower(attribute),".png"), type='cairo', width=plot.panels[2]*4,height=plot.panels[1]*4, units='in', res=200)
         par(mfrow=plot.panels)
         if(iteration.type!="attribute") {
             labels.plot1 <- 1:length(estimates.df$sample)

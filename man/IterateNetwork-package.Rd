@@ -3,18 +3,16 @@
 \alias{iterateNetwork}
 \docType{package}
 \title{
-What the package does (short line)
-~~ package title ~~
+Simulation and iteration over network metrics
 }
 \description{
-More about what it does (maybe more than one line)
-~~ A concise (1-5 lines) description of the package ~~
+The function iterateNetwork takes an igraph or network object and calculates network metrics over subsamples of the network.
 }
 \details{
 \tabular{ll}{
 Package: \tab iterateNetwork\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
+Version: \tab 0.1.5\cr
 Date: \tab 2015-10-30\cr
 License: \tab What license is it under?\cr
 }
@@ -22,10 +20,8 @@ License: \tab What license is it under?\cr
 ~~ including the most important functions ~~
 }
 \author{
-Who wrote it
-
-Maintainer: Who to complain to <yourfault@somewhere.net>
-~~ The author and/or maintainer of the package ~~
+Marco T. Bastos
+Maintainer: Marco T. Bastos <marco@toledobastos.com>
 }
 \references{
 ~~ Literature or other references for background information ~~

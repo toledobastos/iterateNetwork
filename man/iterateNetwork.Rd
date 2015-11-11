@@ -43,22 +43,24 @@ Defines the plot type used in R base graphics. Defaults to 'p' for points, but l
 Defines which network metrics to iterate over. It defaults to a selection of 15 metrics but can be set to ALL to return all metrics available (see below). You can manually select or remove any of the following metrics: 
 # 01. nodes
 # 02. edges
-# 03. centralization
-# 04. diameter
-# 05. eigenvector
-# 06. permutation
-# 07. transitivity
-# 08. articulations
-# 09. cluster
-# 10. path.length
-# 11. degree
-# 12. closeness
-# 13. page.rank
-# 14. betweenness
-# 15. density
-# 16. largest.component
-# 17. small.world
-by setting return.estimates=c(1:10,12:17), with numbers indicating the above metrics
+# 03. degree
+# 04. eigenvector
+# 05. local.clustering
+# 06. centralization
+# 07. diameter
+# 08. permutation
+# 09. transitivity
+# 10. articulations
+# 11. cluster
+# 12. path.length
+# 13. closeness
+# 14. page.rank
+# 15. betweenness
+# 16. density
+# 17. largest.component
+# 18. small.world
+
+by setting return.estimates=c(1:10,12:17), with numbers indicating the above variables.
 }
 }
 \author{
