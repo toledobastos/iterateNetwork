@@ -107,7 +107,7 @@ iterateNetwork <- function(net.object,
         if(stepwise.removal=="auto") { stepwise.removal <- net.iterate <- round(sqrt(min.stepwise)-.5) }
         else { net.iterate <- round(min(module.sizes)/stepwise.removal) }
         net.samples <- attribute.unique
-        if(stepwise.removal>min.stepwise | min(module.sizes)/stepwise.removal*stepwise.removal>min(module.sizes)) { 
+        if(stepwise.removal>min.stepwise | as.integer(min(module.sizes)/stepwise.removal*stepwise.removal)>min(module.sizes)) { 
             stop(print(paste0("Maximum stepwise node removal for this network attribute is ", round(min(module.sizes)/2), " per iteration. Decrease stepwise.removal to match this threshold.")))}
     } 
     if(removal=="edge") { 
@@ -132,7 +132,7 @@ iterateNetwork <- function(net.object,
         if(stepwise.removal=="auto") { stepwise.removal <- net.iterate <- round(sqrt(min.stepwise)-.5) }
         else { net.iterate <- round(min(module.sizes)/stepwise.removal) }
         net.samples <- attribute.unique
-        if(stepwise.removal>min.stepwise | min(module.sizes)/stepwise.removal*stepwise.removal>min(module.sizes)) { 
+        if(stepwise.removal>min.stepwise | as.integer(min(module.sizes)/stepwise.removal*stepwise.removal)>min(module.sizes)) { 
             stop(print(paste0("Maximum stepwise edge removal for this network attribute is ", round(min(module.sizes)/2), " per iteration. Decrease stepwise.removal to match this threshold.")))}
     }
     }
@@ -212,7 +212,7 @@ iterateNetwork <- function(net.object,
                     edges.select <- E(corenet.g)$name[!E(corenet.g)$name %in% edges.deselect]
                     corenet.gx <- igraph::subgraph.edges(corenet.g, eids=which(igraph::E(corenet.g)$name %in% edges.select), delete.vertices=TRUE) }
             }
-
+            
             # collect metrics per iteration
             nodes.num.vec <- c(nodes.num.vec,igraph::vcount(corenet.gx))
             edges.num.vec <- c(edges.num.vec,igraph::ecount(corenet.gx))
