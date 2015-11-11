@@ -186,7 +186,7 @@ iterateNetwork <- function(net.object,
             diameter.vec <- c(diameter.vec,igraph::diameter(corenet.gx))
             eigenvector.vec <- c(eigenvector.vec,igraph::evcent(corenet.gx)$value)
             permutation.vec <- c(permutation.vec,igraph::canonical.permutation(corenet.gx)$info$nof_nodes)
-            transitivity.vec <- c(transitivity.vec,igraph::transitivity(corenet.gx))
+            transitivity.vec <- c(transitivity.vec,igraph::transitivity(corenet.gx, , type=c("globalundirected"), isolates=c("zero")))
             articulations.vec <- c(articulations.vec,length(igraph::articulation.points(corenet.gx)))
             clusters.vec <- c(clusters.vec,igraph::no.clusters(corenet.gx))
             avr.pathlength.vec <- c(avr.pathlength.vec,igraph::average.path.length(corenet.gx))
