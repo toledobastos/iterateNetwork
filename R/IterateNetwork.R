@@ -38,18 +38,13 @@ iterateNetwork <- function(net.object,
     if(any(is.na(network::get.vertex.attribute(corenet, "name")))) { network::set.vertex.attribute(corenet, "name", value = 1:length(network::get.vertex.attribute(corenet, "name"))) }
     if(is.null(network::get.edge.attribute(corenet, "name"))) { network::set.edge.attribute(corenet, attrname = "name", value = 1:network::network.edgecount(corenet)) }
     
-    # transform node to edge attribute for node.interaction 
+    # transform node to edge attribute for node.interaction
     if(removal=="node.interaction") {
         df1 <- as.data.frame(igraph::get.edgelist(corenet.g))
         df1$V1 <- as.character(df1$V1)
         df1$V2 <- as.character(df1$V2)
-<<<<<<< HEAD
         user.from <- merge(df1, data.frame(V1=as.character(igraph::V(corenet.g)$name), attr=igraph::get.vertex.attribute(corenet.g, attribute)), by="V1", all.x=T)[3]$attr
         user.to <- merge(df1, data.frame(V2=as.character(igraph::V(corenet.g)$name), attr=igraph::get.vertex.attribute(corenet.g, attribute)), by="V2", all.x=T)[3]$attr
-=======
-        user.from <- merge(df1, data.frame(V1=as.character(igraph::V(corenet.g)), attr=igraph::get.vertex.attribute(corenet.g, attribute)), by="V1", all.x=T)[3]$attr
-        user.to <- merge(df1, data.frame(V2=as.character(igraph::V(corenet.g)), attr=igraph::get.vertex.attribute(corenet.g, attribute)), by="V2", all.x=T)[3]$attr
->>>>>>> f1dd408ebc93902fa114e2b50b5e5c78c303699e
         edge.attr <- paste(user.from, user.to, sep="+")
         if(!igraph::is.directed(corenet.g)) {
             edge.attr.df <- as.data.frame(igraph::get.edgelist(igraph::graph.data.frame(data.frame(from=user.from, to=user.to), directed=F)))
@@ -308,7 +303,7 @@ iterateNetwork <- function(net.object,
     estimates.total <- ncol(estimates.df)
     
     # add identifier for each network projection
-    if(iteration.type=="attribute") { identifier <- rep(attribute.unique, each=net.iterate) }
+    if(iteration.type=="attribute") { identifier <- rep(attribute.unique, each = net.iterate) }
     if(iteration.type!="attribute") { identifier <- rep(net.samples, each = net.iterate) }
     estimates.df <- cbind(data.frame(sample=identifier), estimates.df)
     
@@ -331,7 +326,8 @@ iterateNetwork <- function(net.object,
         if(estimates.total==15) { plot.panels <- c(3,5) }
         if(estimates.total>16 && estimates.total<18) { plot.panels <- c(4,5) }
         if(estimates.total==18) { plot.panels <- c(3,6) }
-        if(estimates.total>20) { plot.panels <- c(5,round(median(divisors(estimates.total)))) }        
+        if(estimates.total>18) { plot.panels <- c(5,5) }
+        las.plot <- 0
         png(paste0("network_estimates_by_",removal,"_",net.iterate,"_iterations_over_",length(net.samples),"_projections_",iteration.type,"_",tolower(attribute),".png"), type='cairo', width=plot.panels[2]*4,height=plot.panels[1]*4, units='in', res=200)
         par(mfrow=plot.panels)
         if(iteration.type!="attribute") {
@@ -340,11 +336,14 @@ iterateNetwork <- function(net.object,
         if(iteration.type=="attribute") { 
             labels.plot1 <- 1:length(estimates.df$sample)
             labels.plot2 <- paste0(estimates.df$sample)
-            if(max(nchar(labels.plot2))>5) { labels.plot2[which(duplicated(estimates.df$sample))] <- "" } }
+            if(max(nchar(labels.plot2))>5) {
+                labels.plot2[which(duplicated(estimates.df$sample))] <- ""
+                las.plot <- 2 } 
+        }
         for(i in 2:ncol(estimates.df)) {
             plot(as.numeric(estimates.df[,i]), xlab="", ylab="", col=colorsmetric[i], cex=0.5, xaxt="n",
                  main=paste(colnames(estimates.df)[i]), type=plot.type, lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
-            axis(1, at=labels.plot1, labels=labels.plot2)
+            axis(1, at=labels.plot1, labels=labels.plot2, las=las.plot)
         }
         dev.off()
     }
