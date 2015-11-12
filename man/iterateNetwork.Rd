@@ -63,7 +63,7 @@ by setting return.estimates=c(1:10,12:17), with numbers indicating the above var
 }
 }
 \author{
-Marco T. Batos
+Marco T. Bastos
 }
 
 \examples{

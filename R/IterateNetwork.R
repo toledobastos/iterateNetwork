@@ -38,6 +38,11 @@ iterateNetwork <- function(net.object,
     if(any(is.na(network::get.vertex.attribute(corenet, "name")))) { network::set.vertex.attribute(corenet, "name", value = 1:length(network::get.vertex.attribute(corenet, "name"))) }
     if(is.null(network::get.edge.attribute(corenet, "name"))) { network::set.edge.attribute(corenet, attrname = "name", value = 1:network::network.edgecount(corenet)) }
     
+    # check node & edge attribute
+    if(removal=="node" && is.null(igraph::get.vertex.attribute(corenet.g, attribute))) { stop(print(paste0("node attribute ",attribute," not found."))) }
+    if(removal=="node.interaction" && is.null(igraph::get.vertex.attribute(corenet.g, attribute))) { stop(print(paste0("node attribute ",attribute," not found."))) }
+    if(removal=="edge" && is.null(igraph::get.edge.attribute(corenet.g, attribute))) { stop(print(paste0("edge attribute ",attribute," not found."))) } 
+    
     # transform node to edge attribute for node.interaction
     if(removal=="node.interaction") {
         df1 <- as.data.frame(igraph::get.edgelist(corenet.g))
