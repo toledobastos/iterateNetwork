@@ -3,6 +3,7 @@ iterateNetwork <- function(net.object,
                            net.samples = rev(seq(0.01:1,by=0.01)),
                            removal = "node",
                            net.iterate = 10,
+                           collapse.minor = 1,
                            attribute=NULL,
                            stepwise.removal = "auto",
                            return.estimates = "ALL",
@@ -39,9 +40,9 @@ iterateNetwork <- function(net.object,
     if(is.null(network::get.edge.attribute(corenet, "name"))) { network::set.edge.attribute(corenet, attrname = "name", value = 1:network::network.edgecount(corenet)) }
     
     # check node & edge attribute
-    if(removal=="node" && is.null(igraph::get.vertex.attribute(corenet.g, attribute))) { stop(print(paste0("node attribute ",attribute," not found."))) }
-    if(removal=="node.interaction" && is.null(igraph::get.vertex.attribute(corenet.g, attribute))) { stop(print(paste0("node attribute ",attribute," not found."))) }
-    if(removal=="edge" && is.null(igraph::get.edge.attribute(corenet.g, attribute))) { stop(print(paste0("edge attribute ",attribute," not found."))) } 
+    if(removal=="node" && is.null(igraph::get.vertex.attribute(corenet.g, attribute))) { stop(print(paste0("Node attribute ",attribute," not found."))) }
+    if(removal=="node.interaction" && is.null(igraph::get.vertex.attribute(corenet.g, attribute))) { stop(print(paste0("Node attribute ",attribute," not found."))) }
+    if(removal=="edge" && is.null(igraph::get.edge.attribute(corenet.g, attribute))) { stop(print(paste0("Edge attribute ",attribute," not found."))) } 
     
     # transform node to edge attribute for node.interaction
     if(removal=="node.interaction") {
@@ -111,14 +112,15 @@ iterateNetwork <- function(net.object,
         attribute.index <- data.frame(nodes=igraph::V(corenet.g)$name, attribute=igraph::get.vertex.attribute(corenet.g, attribute, index=igraph::V(corenet.g)))
         attribute.index$attribute <- as.factor(as.character(attribute.index$attribute))
         attribute.index <- attribute.index[order(attribute.index$attribute),]
-        # check for singletons and fix if necessary
-        attribute.index.table <- as.data.frame(table(as.character(attribute.index$attribute)))
-        if(any(attribute.index.table$Freq<4)) {
-            attribute.index <- merge(attribute.index, attribute.index.table, by.x="attribute", by.y="Var1", all.x=T)
-            attribute.index$attribute <- as.character(attribute.index$attribute)
-            attribute.index$attribute[attribute.index$Fre<round(median(attribute.index.table$Freq))] <- "ETAL"
-            attribute.index$Freq <- NULL
-        }
+        # check and fix singletons
+        if(collapse.minor>1) {
+            attribute.index.table <- as.data.frame(table(as.character(attribute.index$attribute)))
+            if(any(attribute.index.table$Freq<collapse.minor)) {
+                attribute.index <- merge(attribute.index, attribute.index.table, by.x="attribute", by.y="Var1", all.x=T)
+                attribute.index$attribute <- as.character(attribute.index$attribute)
+                attribute.index$attribute[attribute.index$Freq<collapse.minor] <- "ETAL"
+                attribute.index$Freq <- NULL
+            }}
         net.samples.list <- list()
         attribute.unique <- unique(as.character(attribute.index$attribute))
         for(x in 1:length(unique(attribute.index$attribute))) {
@@ -136,14 +138,15 @@ iterateNetwork <- function(net.object,
         attribute.index <- data.frame(edges=igraph::E(corenet.g)$name, attribute=igraph::get.edge.attribute(corenet.g, attribute, index=igraph::E(corenet.g)))
         attribute.index$attribute <- as.factor(as.character(attribute.index$attribute))
         attribute.index <- attribute.index[order(attribute.index$attribute),]
-        # check for singletons and fix if necessary
-        attribute.index.table <- as.data.frame(table(as.character(attribute.index$attribute)))
-        if(any(attribute.index.table$Freq<4)) {
-            attribute.index <- merge(attribute.index, attribute.index.table, by.x="attribute", by.y="Var1", all.x=T)
-            attribute.index$attribute <- as.character(attribute.index$attribute)
-            attribute.index$attribute[attribute.index$Fre<round(median(attribute.index.table$Freq))] <- "ETAL"
-            attribute.index$Freq <- NULL
-        }
+        # check and fix singletons
+        if(collapse.minor>1) {
+            attribute.index.table <- as.data.frame(table(as.character(attribute.index$attribute)))
+            if(any(attribute.index.table$Freq<collapse.minor)) {
+                attribute.index <- merge(attribute.index, attribute.index.table, by.x="attribute", by.y="Var1", all.x=T)
+                attribute.index$attribute <- as.character(attribute.index$attribute)
+                attribute.index$attribute[attribute.index$Freq<collapse.minor] <- "ETAL"
+                attribute.index$Freq <- NULL
+            }}
         net.samples.list <- list()
         attribute.unique <- unique(as.character(attribute.index$attribute))
         for(x in 1:length(unique(attribute.index$attribute))) {
@@ -337,7 +340,7 @@ iterateNetwork <- function(net.object,
         par(mfrow=plot.panels)
         if(iteration.type!="attribute") { 
             labels.plot1 <- 1:length(estimates.df$sample)
-            labels.plot2 <- labels.plot2 <- paste0(estimates.df$sample*100,"%") }
+            labels.plot2 <- paste0(estimates.df$sample*100,"%") }
         if(iteration.type=="attribute") { 
             labels.plot1 <- 1:length(estimates.df$sample)
             labels.plot2 <- paste0(estimates.df$sample)
