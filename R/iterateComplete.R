@@ -135,8 +135,8 @@ iterateComplete <- function(net.object,
     net.size.0 <- vcount(corenet.g)
     net.removed <- net.size.0-min.stepwise
     net.int2 <- net.removed/net.size.0
-    net.samples <- rev(seq(net.int2:1, by=net.int2/(min.stepwise*100), length.out=min.stepwise))
-    
+    net.samples <- rev(seq(net.int2:1, by=net.int2/min.stepwise))
+
     # prepare for loop
     selected.variables <- c("random", "degree", attribute.unique)
     list.complete <- vector("list", length(selected.variables))
@@ -407,11 +407,11 @@ iterateComplete <- function(net.object,
     # plot data
     if(plot.estimators==TRUE) {
         # plot observed estimators
-        if(estimates.count<=500) { lwd.by.iteration <- 4}
-        if(estimates.count>500 && estimates.count<=1000) { lwd.by.iteration <- 3}
-        if(estimates.count>1000 && estimates.count<=2000) { lwd.by.iteration <- 2}
-        if(estimates.count>2000 && estimates.count<=4000) { lwd.by.iteration <- 1}
-        if(estimates.count>4000) { lwd.by.iteration <- 0.3}
+        if(estimates.count<=500) { lwd.by.iteration <- 1}
+        if(estimates.count>500 && estimates.count<=1000) { lwd.by.iteration <- .7}
+        if(estimates.count>1000 && estimates.count<=2000) { lwd.by.iteration <- .5}
+        if(estimates.count>2000 && estimates.count<=4000) { lwd.by.iteration <- .3}
+        if(estimates.count>4000) { lwd.by.iteration <- 0.1}
         colorsmetric <- rainbow(length(list.complete))
         # set plot window
         if(estimates.total<6) { plot.panels <- c(estimates.total,1) }
@@ -431,7 +431,7 @@ iterateComplete <- function(net.object,
         for(i in 2:ncol(list.complete[[1]])) { 
             plot(as.numeric(list.complete[[1]][,i]), xlab="", ylab="", col=colorsmetric[u], cex=0.5, xaxt="n", main=paste(colnames(list.complete[[1]])[i]), type=plot.type, lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
             for(u in 1:length(list.complete)) {
-            lines(as.numeric(list.complete[[u]][,i]), xlab="", ylab="", col=colorsmetric[u], cex=0.5, xaxt="n", lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
+            lines(as.numeric(list.complete[[u]][,i]), xlab="", ylab="", col=colorsmetric[u], cex=0.5, xaxt="n", lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2, type=plot.type)
             }
             axis(1, at=labels.plot1, labels=labels.plot2)
         }
