@@ -1,9 +1,9 @@
 Package: iterateNetwork
 Type: Package
-Title: Simulation and iteration over network metrics
-Version: 0.2.0
+Title: Simulation and iteration over network projections
+Version: 0.2.1
 Date: 2015-10-30
 Author: Marco T. Bastos
 Maintainer: Marco T. Bastos <marco@toledobastos.com>
-Description: iterateNetwork takes an igraph or network object and calculates network metrics over subsamples of the network. Simulations can be run over random samples, but also degree, betweenness, and closeness distribution. Iterative sampling can also be defined by node and edge attributes or by node intearaction.
+Description: iterateNetwork takes an igraph or network object and calculates network metrics over subsamples of the network. Simulations can be run over random samples, but also degree, betweenness, and closeness distribution. Iterative sampling can also be defined by node and edge attributes or by node intearaction and iterateComplete will run all possible simulations over node attributes, degree, and random removal for comparison.
 License: GPL (>= 2)

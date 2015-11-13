@@ -1,3 +1,3 @@
 # IterateNetwork
 
-Description: iterateNetwork and iterateComplete simlate stochastic and targeted node removal of networks nodes, edges, and a combination of both.
+Description: simulates stochastic and targeted node or edge removal of networks based on network attributes.
