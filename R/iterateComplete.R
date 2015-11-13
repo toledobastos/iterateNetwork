@@ -12,9 +12,6 @@ iterateComplete <- function(net.object,
     require(igraph)
     require(sna)
 
-    # check for request error
-    if(iteration.type=="attribute" && is.null(attribute)) { stop(print(paste0("iteration.type by attribute requires specifying vertex attribute.")))}
-
     # check node & edge names in network object
     if(class(net.object)=="igraph" && is.null(V(net.object)$name)) { V(net.object)$name <- 1:vcount(net.object) }
     if(class(net.object)=="igraph" && is.null(E(net.object)$name)) { E(net.object)$name <- 1:ecount(net.object) }
