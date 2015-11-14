@@ -35,7 +35,6 @@ Defines the sample of size of targeted nodes to be removed each iteration. Requi
   \item{plot.estimators}{
 Defaults to TRUE to include a plot of the estimates generated during iterations.
 }
-}
   \item{plot.type}{
 Defines the plot type used in R base graphics. Defaults to 'p' for points, but lines ('l') or lines and points ('o') might be more suitable for targeted node removal.
 }
@@ -65,7 +64,6 @@ by setting return.estimates=c(1:10,12:17), with numbers indicating the above var
 \author{
 Marco T. Bastos
 }
-
 \examples{
 # Not run:
 net.object <- barabasi.game(50) # generates sample network

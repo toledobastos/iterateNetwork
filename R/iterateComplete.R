@@ -431,7 +431,9 @@ iterateComplete <- function(net.object,
         for(i in 2:ncol(list.complete[[1]])) { 
             plot(as.numeric(list.complete[[1]][,i]), xlab="", ylab="", col=colorsmetric[u], cex=0.5, xaxt="n", main=paste(colnames(list.complete[[1]])[i]), type=plot.type, lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2)
             for(u in 1:length(list.complete)) {
-            lines(as.numeric(list.complete[[u]][,i]), xlab="", ylab="", col=colorsmetric[u], cex=0.5, xaxt="n", lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2, type=plot.type)
+                if(plot.type=="l") { lines(as.numeric(list.complete[[u]][,i]), xlab="", ylab="", col=colorsmetric[u], cex=0.5, xaxt="n", lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2, type="l") }
+                if(plot.type=="p") { points(as.numeric(list.complete[[u]][,i]), xlab="", ylab="", col=colorsmetric[u], cex=0.5, xaxt="n", lwd=lwd.by.iteration,cex.lab=1.6, cex.axis=1.6, cex.main=2.5, cex.sub=2, type="p") }
+                
             }
             axis(1, at=labels.plot1, labels=labels.plot2)
         }
