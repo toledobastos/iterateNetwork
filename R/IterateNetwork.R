@@ -1,4 +1,4 @@
-iterateNetwork1 <- function(net.object,
+iterateNetwork <- function(net.object,
                            iteration.type ="random",
                            net.samples = rev(seq(0.01:1,by=0.01)),
                            removal = "node",
@@ -15,18 +15,18 @@ iterateNetwork1 <- function(net.object,
     require(network)
     require(igraph)
     require(sna)
-    
+
     # check for request error
     if(iteration.type=="attribute" && is.null(attribute)) { stop(print(paste0("iteration.type by attribute requires specifying vertex attribute.")))}
     if(iteration.type=="node.interaction" && is.null(attribute)) { stop(print(paste0("iteration.type by attribute requires specifying node.interaction attribute.")))}
     if(iteration.type=="edge" && is.null(attribute)) { stop(print(paste0("iteration.type by edge requires specifying edge attribute.")))}
-    
+
     # check node & edge names in network object
     if(class(net.object)=="igraph" && is.null(V(net.object)$name)) { V(net.object)$name <- 1:vcount(net.object) }
     if(class(net.object)=="igraph" && is.null(E(net.object)$name)) { E(net.object)$name <- 1:ecount(net.object) }
     if(class(net.object)=="network") { if(any(is.na(network::get.vertex.attribute(net.object, "name")))) { network::set.vertex.attribute(net.object, "name", value = 1:length(network::get.vertex.attribute(net.object, "name"))) } }
     if(class(net.object)=="network") { if(is.null(network::get.edge.attribute(net.object, "name"))) { network::set.edge.attribute(net.object, attrname = "name", value = 1:network::network.edgecount(net.object)) } }
-    
+
     # generate network & igraph objects
     if(class(net.object)=="igraph") { corenet <- intergraph::asNetwork(net.object) }
     if(class(net.object)=="igraph") { corenet.g <- net.object }
@@ -40,9 +40,9 @@ iterateNetwork1 <- function(net.object,
     if(is.null(network::get.edge.attribute(corenet, "name"))) { network::set.edge.attribute(corenet, attrname = "name", value = 1:network::network.edgecount(corenet)) }
     
     # check node & edge attribute
-    if(removal=="node" && iteration.type=="attribute" && is.null(igraph::get.vertex.attribute(corenet.g, attribute))) { stop(print(paste0("Node attribute ",attribute," not found."))) }
-    if(removal=="node.interaction" && iteration.type=="attribute" && is.null(igraph::get.vertex.attribute(corenet.g, attribute))) { stop(print(paste0("Node attribute ",attribute," not found."))) }
-    if(removal=="edge" && iteration.type=="attribute" && is.null(igraph::get.edge.attribute(corenet.g, attribute))) { stop(print(paste0("Edge attribute ",attribute," not found."))) } 
+    if(removal=="node" && is.null(igraph::get.vertex.attribute(corenet.g, attribute))) { stop(print(paste0("Node attribute ",attribute," not found."))) }
+    if(removal=="node.interaction" && is.null(igraph::get.vertex.attribute(corenet.g, attribute))) { stop(print(paste0("Node attribute ",attribute," not found."))) }
+    if(removal=="edge" && is.null(igraph::get.edge.attribute(corenet.g, attribute))) { stop(print(paste0("Edge attribute ",attribute," not found."))) } 
     
     # transform node to edge attribute for node.interaction
     if(removal=="node.interaction") {
@@ -105,64 +105,63 @@ iterateNetwork1 <- function(net.object,
     largest.component.list <- list()
     small.world.list <- list()
     local.clustering.list <- list()
-    triangles.list <- list()
     
     # index network for attribute iteration
     if(iteration.type=="attribute") {
         if(removal=="node") { 
-            attribute.index <- data.frame(nodes=igraph::V(corenet.g)$name, attribute=igraph::get.vertex.attribute(corenet.g, attribute, index=igraph::V(corenet.g)))
-            attribute.index$attribute <- as.factor(as.character(attribute.index$attribute))
-            attribute.index <- attribute.index[order(attribute.index$attribute),]
-            # check and fix singletons
-            if(collapse.minor>1) {
-                attribute.index.table <- as.data.frame(table(as.character(attribute.index$attribute)))
-                if(any(attribute.index.table$Freq<collapse.minor)) {
-                    attribute.index <- merge(attribute.index, attribute.index.table, by.x="attribute", by.y="Var1", all.x=T)
-                    attribute.index$attribute <- as.character(attribute.index$attribute)
-                    attribute.index$attribute[attribute.index$Freq<collapse.minor] <- "ETAL"
-                    attribute.index$Freq <- NULL
-                }}
-            net.samples.list <- list()
-            attribute.unique <- unique(as.character(attribute.index$attribute))
-            for(x in 1:length(unique(attribute.index$attribute))) {
-                net.samples.list[[x]] <- attribute.index$nodes[as.character(attribute.index$attribute)==attribute.unique[x] ] }
-            module.sizes <- unlist(lapply(net.samples.list, length))
-            min.stepwise <- min(module.sizes)
-            print(paste0("Max node removal for ",attribute, " is ", min(module.sizes), ". Possible stepwise removal: ",paste(divisors(min.stepwise), collapse = ", ")))        
-            if(stepwise.removal=="auto") { stepwise.removal <- net.iterate <- round(sqrt(min.stepwise)-.5) }
-            else { net.iterate <- round(min(module.sizes)/stepwise.removal) }
-            net.samples <- attribute.unique
-            if(stepwise.removal>min.stepwise | as.integer(min(module.sizes)/stepwise.removal*stepwise.removal)>min(module.sizes)) { 
-                stop(print(paste0("Maximum stepwise node removal for this network attribute is ", round(min(module.sizes)/2), " per iteration. Decrease stepwise.removal to match this threshold.")))}
-        } 
-        if(removal=="edge") { 
-            attribute.index <- data.frame(edges=igraph::E(corenet.g)$name, attribute=igraph::get.edge.attribute(corenet.g, attribute, index=igraph::E(corenet.g)))
-            attribute.index$attribute <- as.factor(as.character(attribute.index$attribute))
-            attribute.index <- attribute.index[order(attribute.index$attribute),]
-            # check and fix singletons
-            if(collapse.minor>1) {
-                attribute.index.table <- as.data.frame(table(as.character(attribute.index$attribute)))
-                if(any(attribute.index.table$Freq<collapse.minor)) {
-                    attribute.index <- merge(attribute.index, attribute.index.table, by.x="attribute", by.y="Var1", all.x=T)
-                    attribute.index$attribute <- as.character(attribute.index$attribute)
-                    attribute.index$attribute[attribute.index$Freq<collapse.minor] <- "ETAL"
-                    attribute.index$Freq <- NULL
-                }}
-            net.samples.list <- list()
-            attribute.unique <- unique(as.character(attribute.index$attribute))
-            for(x in 1:length(unique(attribute.index$attribute))) {
-                net.samples.list[[x]] <- attribute.index$edges[as.character(attribute.index$attribute)==attribute.unique[x] ] }
-            module.sizes <- unlist(lapply(net.samples.list, length))
-            min.stepwise <- min(module.sizes)
-            print(paste0("Max edge removal for ",attribute, " is ", min(module.sizes), ". Possible stepwise removal: ",paste(divisors(min.stepwise), collapse = ", ")))        
-            if(stepwise.removal=="auto") { stepwise.removal <- net.iterate <- round(sqrt(min.stepwise)-.5) }
-            else { net.iterate <- round(min(module.sizes)/stepwise.removal) }
-            net.samples <- attribute.unique
-            if(stepwise.removal>min.stepwise | as.integer(min(module.sizes)/stepwise.removal*stepwise.removal)>min(module.sizes)) { 
-                stop(print(paste0("Maximum stepwise edge removal for this network attribute is ", round(min(module.sizes)/2), " per iteration. Decrease stepwise.removal to match this threshold.")))}
-        }
+        attribute.index <- data.frame(nodes=igraph::V(corenet.g)$name, attribute=igraph::get.vertex.attribute(corenet.g, attribute, index=igraph::V(corenet.g)))
+        attribute.index$attribute <- as.factor(as.character(attribute.index$attribute))
+        attribute.index <- attribute.index[order(attribute.index$attribute),]
+        # check and fix singletons
+        if(collapse.minor>1) {
+            attribute.index.table <- as.data.frame(table(as.character(attribute.index$attribute)))
+            if(any(attribute.index.table$Freq<collapse.minor)) {
+                attribute.index <- merge(attribute.index, attribute.index.table, by.x="attribute", by.y="Var1", all.x=T)
+                attribute.index$attribute <- as.character(attribute.index$attribute)
+                attribute.index$attribute[attribute.index$Freq<collapse.minor] <- "ETAL"
+                attribute.index$Freq <- NULL
+            }}
+        net.samples.list <- list()
+        attribute.unique <- unique(as.character(attribute.index$attribute))
+        for(x in 1:length(unique(attribute.index$attribute))) {
+            net.samples.list[[x]] <- attribute.index$nodes[as.character(attribute.index$attribute)==attribute.unique[x] ] }
+        module.sizes <- unlist(lapply(net.samples.list, length))
+        min.stepwise <- min(module.sizes)
+        print(paste0("Max node removal for ",attribute, " is ", min(module.sizes), ". Possible stepwise removal: ",paste(divisors(min.stepwise), collapse = ", ")))        
+        if(stepwise.removal=="auto") { stepwise.removal <- net.iterate <- round(sqrt(min.stepwise)-.5) }
+        else { net.iterate <- round(min(module.sizes)/stepwise.removal) }
+        net.samples <- attribute.unique
+        if(stepwise.removal>min.stepwise | as.integer(min(module.sizes)/stepwise.removal*stepwise.removal)>min(module.sizes)) { 
+            stop(print(paste0("Maximum stepwise node removal for this network attribute is ", round(min(module.sizes)/2), " per iteration. Decrease stepwise.removal to match this threshold.")))}
+    } 
+    if(removal=="edge") { 
+        attribute.index <- data.frame(edges=igraph::E(corenet.g)$name, attribute=igraph::get.edge.attribute(corenet.g, attribute, index=igraph::E(corenet.g)))
+        attribute.index$attribute <- as.factor(as.character(attribute.index$attribute))
+        attribute.index <- attribute.index[order(attribute.index$attribute),]
+        # check and fix singletons
+        if(collapse.minor>1) {
+            attribute.index.table <- as.data.frame(table(as.character(attribute.index$attribute)))
+            if(any(attribute.index.table$Freq<collapse.minor)) {
+                attribute.index <- merge(attribute.index, attribute.index.table, by.x="attribute", by.y="Var1", all.x=T)
+                attribute.index$attribute <- as.character(attribute.index$attribute)
+                attribute.index$attribute[attribute.index$Freq<collapse.minor] <- "ETAL"
+                attribute.index$Freq <- NULL
+            }}
+        net.samples.list <- list()
+        attribute.unique <- unique(as.character(attribute.index$attribute))
+        for(x in 1:length(unique(attribute.index$attribute))) {
+            net.samples.list[[x]] <- attribute.index$edges[as.character(attribute.index$attribute)==attribute.unique[x] ] }
+        module.sizes <- unlist(lapply(net.samples.list, length))
+        min.stepwise <- min(module.sizes)
+        print(paste0("Max edge removal for ",attribute, " is ", min(module.sizes), ". Possible stepwise removal: ",paste(divisors(min.stepwise), collapse = ", ")))        
+        if(stepwise.removal=="auto") { stepwise.removal <- net.iterate <- round(sqrt(min.stepwise)-.5) }
+        else { net.iterate <- round(min(module.sizes)/stepwise.removal) }
+        net.samples <- attribute.unique
+        if(stepwise.removal>min.stepwise | as.integer(min(module.sizes)/stepwise.removal*stepwise.removal)>min(module.sizes)) { 
+            stop(print(paste0("Maximum stepwise edge removal for this network attribute is ", round(min(module.sizes)/2), " per iteration. Decrease stepwise.removal to match this threshold.")))}
     }
-    
+    }
+        
     # start network slicing
     for(u in 1:length(net.samples)) {
         
@@ -195,7 +194,6 @@ iterateNetwork1 <- function(net.object,
         density.vec <- as.numeric()
         largest.component.vec <- as.numeric()
         small.world.vec <- as.numeric()
-        triangles.vec <- as.numeric()
         
         # start iteration
         for(j in 1:net.iterate) {
@@ -258,8 +256,8 @@ iterateNetwork1 <- function(net.object,
             betweenness.vec <- c(betweenness.vec,igraph::centralization.betweenness(corenet.gx)$centralization)
             density.vec <- c(density.vec,igraph::graph.density(corenet.gx))
             small.world.vec <- c(small.world.vec, small.wordness(corenet.gx))
+            #         largest.component.vec <- c(largest.component.vec,sum(sna::component.largest(as.network(as.matrix(igraph::get.adjacency(corenet.gx)), directed = igraph::is.directed(corenet.gx)), connected=c("strong"))))
             largest.component.vec <- c(largest.component.vec,base::max(igraph::clusters(corenet.gx)$csize))
-            triangles.vec <- c(triangles.vec, sum(igraph::adjacent.triangles(corenet.gx))/3)
         }
         # aggregate estimates        
         nodes.num.list[[u]] <- as.list(nodes.num.vec)
@@ -280,7 +278,6 @@ iterateNetwork1 <- function(net.object,
         density.list[[u]] <- as.list(density.vec)
         largest.component.list[[u]] <- as.list(largest.component.vec)
         small.world.list[[u]] <- as.list(small.world.vec)
-        triangles.list[[u]] <- as.list(triangles.vec)
         # clear sample network
         rm(corenet.gx)
         # print process
@@ -304,9 +301,8 @@ iterateNetwork1 <- function(net.object,
                                betweenness=unlist(betweenness.list),
                                density=unlist(density.list),
                                largest.component=unlist(largest.component.list),
-                               triangles=unlist(triangles.list),
                                small.world=unlist(small.world.list))
-    
+
     # select output
     if(!is.character(return.estimates)) { estimates.df <- estimates.df[,c(return.estimates)] }
     if(is.character(return.estimates)) {
@@ -338,8 +334,7 @@ iterateNetwork1 <- function(net.object,
         if(estimates.total==15) { plot.panels <- c(3,5) }
         if(estimates.total>16 && estimates.total<18) { plot.panels <- c(4,5) }
         if(estimates.total==18) { plot.panels <- c(3,6) }
-        if(estimates.total>18 && estimates.total<21) { plot.panels <- c(4,5) }
-        if(estimates.total>21) { plot.panels <- c(5,5) }
+        if(estimates.total>18) { plot.panels <- c(5,5) }
         las.plot <- 0
         png(paste0("network_estimates_by_",removal,"_",net.iterate,"_iterations_over_",length(net.samples),"_projections_",iteration.type,"_",tolower(attribute),".png"), type='cairo', width=plot.panels[2]*4,height=plot.panels[1]*4, units='in', res=200)
         par(mfrow=plot.panels)

@@ -21,7 +21,7 @@ Percentage of the network to be returned.
 }
 }
 \author{
-Marco T. Bastos
+Marco T. Batos
 }
 \examples{
 # Not run:
