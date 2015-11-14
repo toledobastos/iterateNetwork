@@ -21,7 +21,7 @@ Defaults to FALSE. Indicates whether the network is directed or not. If undirect
 }
 }
 \author{
-Marco T. Batos
+Marco T. Bastos
 }
 \examples{
 # Not run:
