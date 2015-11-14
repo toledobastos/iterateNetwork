@@ -1,4 +1,4 @@
-iterateNetwork1 <- function(net.object,
+iterateNetwork <- function(net.object,
                             iteration.type ="random",
                             net.samples = rev(seq(0.01:1,by=0.01)),
                             removal = "node",
