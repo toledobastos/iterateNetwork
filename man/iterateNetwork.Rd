@@ -57,7 +57,8 @@ Defines which network metrics to iterate over. It defaults to a selection of 15 
 # 15. betweenness
 # 16. density
 # 17. largest.component
-# 18. small.world
+# 18. triangles
+# 19. small.world
 by setting return.estimates=c(1:10,12:17), with numbers indicating the above variables.
 }
 }
