@@ -328,6 +328,7 @@ iterateComplete <- function(net.object,
             # set graph sample size
             if(net.samples[u]==1) { graph.size <- net.size } 
             else { graph.size <- round(net.size*net.samples[u]+.5, digits = 0) }
+            node.removal.count <- net.size-(net.samples[u]*net.size)
             
             # reset estimates
             loop.vec.reset()
@@ -335,8 +336,7 @@ iterateComplete <- function(net.object,
             # degree iteration
             for(j in 1:net.iterate) {
                 cat("\r","Iterative removal of targeted nodes",j,"of",net.iterate)
-                nodes.deselect <- sample(net.samples.list[[a-2]], length(net.samples.list[[a-2]])*net.samples[u])
-                nodes.deselect <- net.samples.list[[a-2]][!net.samples.list[[a-2]] %in% nodes.deselect]
+                nodes.deselect <- sample(net.samples.list[[a-2]], node.removal.count)
                 nodes.select <- V(corenet.g)$name[!V(corenet.g)$name %in% nodes.deselect]
                 corenet.gx <- igraph::induced.subgraph(corenet.g, which(V(corenet.g)$name %in% nodes.select))
                 # collect metrics per iteration
