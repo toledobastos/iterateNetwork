@@ -44,21 +44,30 @@ Defines which network metrics to iterate over. It defaults to a selection of 15 
 # 02. edges
 # 03. degree
 # 04. eigenvector
-# 05. local.clustering
-# 06. centralization
-# 07. diameter
-# 08. permutation
-# 09. transitivity
-# 10. articulations
-# 11. cluster
-# 12. path.length
-# 13. closeness
-# 14. page.rank
-# 15. betweenness
-# 16. density
-# 17. largest.component
-# 18. triangles
-# 19. small.world
+# 05. centralization
+# 06. diameter
+# 07. permutation
+# 08. transitivity
+# 09. articulations
+# 10. average local clustering coefficient
+# 11. number of clusters
+# 12. average cluster size
+# 13. median cluster size
+# 14. average path length
+# 15. closeness
+# 16. page rank
+# 17. betweenness
+# 18. density
+# 19. largest component
+# 20. largest component as a fraction of total nodes in network
+# 21. size of second largest component
+# 22. size of third largest component
+# 23. triangles
+# 24. small world quotient
+# 25. small world quotient w/o isolates
+# 26. small world quotient w/o isolates or isolated clusters
+# 27. isolates
+# 28. isolates as a fraction of total nodes in network
 by setting return.estimates=c(1:10,12:17), with numbers indicating the above variables.
 }
 }
