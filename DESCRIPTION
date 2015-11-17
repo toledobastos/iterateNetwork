@@ -1,7 +1,7 @@
 Package: iterateNetwork
 Type: Package
 Title: Simulation and iteration over network projections
-Version: 0.2.2
+Version: 0.2.3
 Date: 2015-10-30
 Author: Marco T. Bastos
 Maintainer: Marco T. Bastos <marco@toledobastos.com>

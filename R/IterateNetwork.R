@@ -104,6 +104,8 @@ iterateNetwork <- function(net.object,
   density.list <- list()
   largest.component.list <- list()
   small.world.list <- list()
+  small.world.list2 <- list()
+  small.world.list3 <- list()
   local.clustering.list <- list()
   triangles.list <- list()
   isolates.list <- list()
@@ -199,6 +201,8 @@ iterateNetwork <- function(net.object,
     density.vec <- as.numeric()
     largest.component.vec <- as.numeric()
     small.world.vec <- as.numeric()
+    small.world.vec2 <- as.numeric()
+    small.world.vec3 <- as.numeric()
     triangles.vec <- as.numeric()
     isolates.vec <- as.numeric()
     isolates.fraction.vec <- as.numeric()
@@ -266,6 +270,8 @@ iterateNetwork <- function(net.object,
       betweenness.vec <- c(betweenness.vec,igraph::centralization.betweenness(corenet.gx)$centralization)
       density.vec <- c(density.vec,igraph::graph.density(corenet.gx))
       small.world.vec <- c(small.world.vec, small.wordness(corenet.gx))
+      small.world.vec2 <- c(small.world.vec2, small.wordness(igraph::delete.vertices(corenet.gx, which(igraph::degree(corenet.gx)<1))))
+      small.world.vec3 <- c(small.world.vec3, small.wordness(igraph::induced.subgraph(corenet.gx, which(igraph::V(corenet.gx)$name %in% igraph::V(corenet.gx)$name[igraph::clusters(corenet.gx)$membership==as.numeric(names(sort(table(igraph::clusters(corenet.gx)$membership), decreasing=T))[[1]])]))))
       largest.component.vec <- c(largest.component.vec,base::max(igraph::clusters(corenet.gx)$csize))
       triangles.vec <- c(triangles.vec, sum(igraph::adjacent.triangles(corenet.gx))/3)
       isolates.vec <- c(isolates.vec, base::sum(igraph::clusters(corenet.gx)$csize==1))
@@ -292,6 +298,8 @@ iterateNetwork <- function(net.object,
     density.list[[u]] <- as.list(density.vec)
     largest.component.list[[u]] <- as.list(largest.component.vec)
     small.world.list[[u]] <- as.list(small.world.vec)
+    small.world.list2[[u]] <- as.list(small.world.vec2)
+    small.world.list3[[u]] <- as.list(small.world.vec3)
     triangles.list[[u]] <- as.list(triangles.vec)
     isolates.list[[u]] <- as.list(isolates.vec)
     isolates.fraction.list[[u]] <- as.list(isolates.fraction.vec)
@@ -307,25 +315,28 @@ iterateNetwork <- function(net.object,
                              edges=unlist(edges.num.list),
                              degree=unlist(avr.degree.list),
                              eigenvector=unlist(eigenvector.list),
-                             local.clustering=unlist(local.clustering.list),
                              centralization=unlist(centralization.list),
                              diameter=unlist(diameter.list),
                              permutation=unlist(permutation.list),
                              transitivity=unlist(transitivity.list),
                              articulations=unlist(articulations.list),
+                             local.clustering=unlist(local.clustering.list),
                              cluster=unlist(clusters.list),
+                             median.cluster=unlist(median.cluster.list),
                              path.length=unlist(avr.pathlength.list),
                              closeness=unlist(avr.closeness.list),
                              page.rank=unlist(page.rank.list),
                              betweenness=unlist(betweenness.list),
                              density=unlist(density.list),
                              largest.component=unlist(largest.component.list),
+                             largest.component.fraction=unlist(largest.component.fraction.list),
                              triangles=unlist(triangles.list),
                              small.world=unlist(small.world.list),
+                             small.world.no.isolates=unlist(small.world.list2),
+                             small.world.component=unlist(small.world.list3),
                              isolates=unlist(isolates.list),
-                             isolates.fraction=unlist(isolates.fraction.list),
-                             median.cluster=unlist(median.cluster.list),
-                             largest.component.fraction=unlist(largest.component.fraction.list))
+                             isolates.fraction=unlist(isolates.fraction.list)
+                             )
   
   # select output
   if(!is.character(return.estimates)) { estimates.df <- estimates.df[,c(return.estimates)] }
