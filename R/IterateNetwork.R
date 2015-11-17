@@ -386,7 +386,11 @@ iterateNetwork <- function(net.object,
     if(estimates.total==18) { plot.panels <- c(3,6) }
     if(estimates.total>18 && estimates.total<=20) { plot.panels <- c(4,5) }
     if(estimates.total>20) { plot.panels <- c(round(sqrt(estimates.total)+.45),round(sqrt(estimates.total)+.45)) }
+<<<<<<< HEAD
     if(estimates.total==28) { plot.panels <- c(4,7) }
+=======
+    if(estimates.total==28 { plot.panels <- c(4,7) }
+>>>>>>> 6ab3bba5ec7a6575b56121130c5c42889bcee16b
     las.plot <- 0
     png(paste0("network_estimates_by_",removal,"_",net.iterate,"_iterations_over_",length(net.samples),"_projections_",iteration.type,"_",tolower(attribute),".png"), type='cairo', width=plot.panels[2]*4,height=plot.panels[1]*4, units='in', res=200)
     par(mfrow=plot.panels)
