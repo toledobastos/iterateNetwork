@@ -65,7 +65,7 @@ iterateNetwork <- function(net.object,
   print(paste0("Setting seed to ",seed))
   
   # load small-word quotient calculation
-  small.wordness <- function(net.object) {
+  small.worldness <- function(net.object) {
     n <- igraph::vcount(net.object)
     p <- igraph::graph.density(net.object)
     k <- p*(n-1)
@@ -110,8 +110,11 @@ iterateNetwork <- function(net.object,
   triangles.list <- list()
   isolates.list <- list()
   isolates.fraction.list <- list()
+  mean.cluster.list <- list()
   median.cluster.list <- list()
   largest.component.fraction.list <- list()
+  second.cluster.list <- list()
+  third.cluster.list <- list()
   
   # index network for attribute iteration
   if(iteration.type=="attribute") {
@@ -206,8 +209,11 @@ iterateNetwork <- function(net.object,
     triangles.vec <- as.numeric()
     isolates.vec <- as.numeric()
     isolates.fraction.vec <- as.numeric()
+    mean.cluster.vec <- as.numeric()
     median.cluster.vec <- as.numeric()
     largest.component.fraction.vec <- as.numeric()
+    second.cluster.vec <- as.numeric()
+    third.cluster.vec <- as.numeric()
     
     # start iteration
     for(j in 1:net.iterate) {
@@ -269,16 +275,19 @@ iterateNetwork <- function(net.object,
       page.rank.vec <- c(page.rank.vec,mean(igraph::page.rank(corenet.g)$vector))
       betweenness.vec <- c(betweenness.vec,igraph::centralization.betweenness(corenet.gx)$centralization)
       density.vec <- c(density.vec,igraph::graph.density(corenet.gx))
-      small.world.vec <- c(small.world.vec, small.wordness(corenet.gx))
-      small.world.vec2 <- c(small.world.vec2, small.wordness(igraph::delete.vertices(corenet.gx, which(igraph::degree(corenet.gx)<1))))
-      small.world.vec3 <- c(small.world.vec3, small.wordness(igraph::induced.subgraph(corenet.gx, which(igraph::V(corenet.gx)$name %in% igraph::V(corenet.gx)$name[igraph::clusters(corenet.gx)$membership==as.numeric(names(sort(table(igraph::clusters(corenet.gx)$membership), decreasing=T))[[1]])]))))
+      small.world.vec <- c(small.world.vec, small.worldness(corenet.gx))
+      small.world.vec2 <- c(small.world.vec2, small.worldness(igraph::delete.vertices(corenet.gx, which(igraph::degree(corenet.gx)<1))))
+      small.world.vec3 <- c(small.world.vec3, small.worldness(igraph::induced.subgraph(corenet.gx, which(igraph::V(corenet.gx)$name %in% igraph::V(corenet.gx)$name[igraph::clusters(corenet.gx)$membership==as.numeric(names(sort(table(igraph::clusters(corenet.gx)$membership), decreasing=T))[[1]])]))))
       largest.component.vec <- c(largest.component.vec,base::max(igraph::clusters(corenet.gx)$csize))
       triangles.vec <- c(triangles.vec, sum(igraph::adjacent.triangles(corenet.gx))/3)
       isolates.vec <- c(isolates.vec, base::sum(igraph::clusters(corenet.gx)$csize==1))
       isolates.fraction.vec <- c(isolates.fraction.vec, base::sum(igraph::clusters(corenet.gx)$csize==1)/igraph::vcount(corenet.gx))
+      mean.cluster.vec <- c(mean.cluster.vec, base::mean(clusters(corenet.gx)$csize))
       median.cluster.vec <- c(median.cluster.vec, stats::median(igraph::clusters(corenet.gx)$csize))
       largest.component.fraction.vec <- c(largest.component.fraction.vec, base::max(igraph::clusters(corenet.gx)$csize)/igraph::vcount(corenet.gx))
-      }
+      second.cluster.vec <- c(second.cluster.vec, base::ifelse(igraph::clusters(corenet.gx)$no > 1, base::sort(igraph::clusters(corenet.gx)$csize, partial=(base::length(igraph::clusters(corenet.gx)$csize))-1)[base::length(igraph::clusters(corenet.gx)$csize)-1], NA))
+      third.cluster.vec <- c(third.cluster.vec, base::ifelse(igraph::clusters(corenet.gx)$no > 2, base::sort(igraph::clusters(corenet.gx)$csize, partial=(base::length(igraph::clusters(corenet.gx)$csize))-2)[base::length(igraph::clusters(corenet.gx)$csize)-2], NA))
+    }
     # aggregate estimates        
     nodes.num.list[[u]] <- as.list(nodes.num.vec)
     edges.num.list[[u]] <- as.list(edges.num.vec)
@@ -303,8 +312,11 @@ iterateNetwork <- function(net.object,
     triangles.list[[u]] <- as.list(triangles.vec)
     isolates.list[[u]] <- as.list(isolates.vec)
     isolates.fraction.list[[u]] <- as.list(isolates.fraction.vec)
+    mean.cluster.list[[u]] <- as.list(mean.cluster.vec)
     median.cluster.list[[u]] <- as.list(median.cluster.vec)
     largest.component.fraction.list[[u]] <- as.list(largest.component.fraction.vec)
+    second.cluster.list[[u]] <- as.list(second.cluster.vec)
+    third.cluster.list[[u]] <- as.list(third.cluster.vec)
     # clear sample network
     rm(corenet.gx)
     # print process
@@ -322,6 +334,7 @@ iterateNetwork <- function(net.object,
                              articulations=unlist(articulations.list),
                              local.clustering=unlist(local.clustering.list),
                              cluster=unlist(clusters.list),
+                             mean.cluster=unlist(mean.cluster.list),
                              median.cluster=unlist(median.cluster.list),
                              path.length=unlist(avr.pathlength.list),
                              closeness=unlist(avr.closeness.list),
@@ -330,13 +343,15 @@ iterateNetwork <- function(net.object,
                              density=unlist(density.list),
                              largest.component=unlist(largest.component.list),
                              largest.component.fraction=unlist(largest.component.fraction.list),
+                             second.cluster=unlist(second.cluster.list),
+                             third.cluster=unlist(third.cluster.list),
                              triangles=unlist(triangles.list),
                              small.world=unlist(small.world.list),
                              small.world.no.isolates=unlist(small.world.list2),
                              small.world.component=unlist(small.world.list3),
                              isolates=unlist(isolates.list),
                              isolates.fraction=unlist(isolates.fraction.list)
-                             )
+  )
   
   # select output
   if(!is.character(return.estimates)) { estimates.df <- estimates.df[,c(return.estimates)] }
