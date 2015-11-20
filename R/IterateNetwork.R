@@ -285,8 +285,8 @@ iterateNetwork <- function(net.object,
       mean.cluster.vec <- c(mean.cluster.vec, base::mean(clusters(corenet.gx)$csize))
       median.cluster.vec <- c(median.cluster.vec, stats::median(igraph::clusters(corenet.gx)$csize))
       largest.component.fraction.vec <- c(largest.component.fraction.vec, base::max(igraph::clusters(corenet.gx)$csize)/igraph::vcount(corenet.gx))
-      second.cluster.vec <- c(second.cluster.vec, base::ifelse(igraph::clusters(corenet.gx)$no > 1, base::sort(igraph::clusters(corenet.gx)$csize, partial=(base::length(igraph::clusters(corenet.gx)$csize))-1)[base::length(igraph::clusters(corenet.gx)$csize)-1], NA))
-      third.cluster.vec <- c(third.cluster.vec, base::ifelse(igraph::clusters(corenet.gx)$no > 2, base::sort(igraph::clusters(corenet.gx)$csize, partial=(base::length(igraph::clusters(corenet.gx)$csize))-2)[base::length(igraph::clusters(corenet.gx)$csize)-2], NA))
+      second.cluster.vec <- c(second.cluster.vec, base::ifelse(igraph::clusters(corenet.gx)$no > 1, base::sort(igraph::clusters(corenet.gx)$csize, partial=(base::length(igraph::clusters(corenet.gx)$csize))-1)[base::length(igraph::clusters(corenet.gx)$csize)-1], 0))
+      third.cluster.vec <- c(third.cluster.vec, base::ifelse(igraph::clusters(corenet.gx)$no > 2, base::sort(igraph::clusters(corenet.gx)$csize, partial=(base::length(igraph::clusters(corenet.gx)$csize))-2)[base::length(igraph::clusters(corenet.gx)$csize)-2], 0))
     }
     # aggregate estimates        
     nodes.num.list[[u]] <- as.list(nodes.num.vec)
