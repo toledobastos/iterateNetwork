@@ -263,13 +263,15 @@ iterateComplete <- function(net.object,
                              edges=unlist(edges.num.list),
                              degree=unlist(avr.degree.list),
                              eigenvector=unlist(eigenvector.list),
-                             local.clustering=unlist(local.clustering.list),
                              centralization=unlist(centralization.list),
                              diameter=unlist(diameter.list),
                              permutation=unlist(permutation.list),
                              transitivity=unlist(transitivity.list),
                              articulations=unlist(articulations.list),
+                             local.clustering=unlist(local.clustering.list),
                              cluster=unlist(clusters.list),
+                             mean.cluster=unlist(mean.cluster.list),
+                             median.cluster=unlist(median.cluster.list),
                              path.length=unlist(avr.pathlength.list),
                              closeness=unlist(avr.closeness.list),
                              page.rank=unlist(page.rank.list),
@@ -285,7 +287,7 @@ iterateComplete <- function(net.object,
                              small.world.component=unlist(small.world.list3),
                              isolates=unlist(isolates.list),
                              isolates.fraction=unlist(isolates.fraction.list)
-                             )
+  )
   list.complete[[1]] <- estimates.df
   
   ###
@@ -383,13 +385,15 @@ iterateComplete <- function(net.object,
                              edges=unlist(edges.num.list),
                              degree=unlist(avr.degree.list),
                              eigenvector=unlist(eigenvector.list),
-                             local.clustering=unlist(local.clustering.list),
                              centralization=unlist(centralization.list),
                              diameter=unlist(diameter.list),
                              permutation=unlist(permutation.list),
                              transitivity=unlist(transitivity.list),
                              articulations=unlist(articulations.list),
+                             local.clustering=unlist(local.clustering.list),
                              cluster=unlist(clusters.list),
+                             mean.cluster=unlist(mean.cluster.list),
+                             median.cluster=unlist(median.cluster.list),
                              path.length=unlist(avr.pathlength.list),
                              closeness=unlist(avr.closeness.list),
                              page.rank=unlist(page.rank.list),
@@ -405,7 +409,7 @@ iterateComplete <- function(net.object,
                              small.world.component=unlist(small.world.list3),
                              isolates=unlist(isolates.list),
                              isolates.fraction=unlist(isolates.fraction.list)
-                             )
+  )
   list.complete[[2]] <- estimates.df
   
   ###
@@ -510,13 +514,15 @@ iterateComplete <- function(net.object,
                                edges=unlist(edges.num.list),
                                degree=unlist(avr.degree.list),
                                eigenvector=unlist(eigenvector.list),
-                               local.clustering=unlist(local.clustering.list),
                                centralization=unlist(centralization.list),
                                diameter=unlist(diameter.list),
                                permutation=unlist(permutation.list),
                                transitivity=unlist(transitivity.list),
                                articulations=unlist(articulations.list),
+                               local.clustering=unlist(local.clustering.list),
                                cluster=unlist(clusters.list),
+                               mean.cluster=unlist(mean.cluster.list),
+                               median.cluster=unlist(median.cluster.list),
                                path.length=unlist(avr.pathlength.list),
                                closeness=unlist(avr.closeness.list),
                                page.rank=unlist(page.rank.list),
@@ -532,7 +538,7 @@ iterateComplete <- function(net.object,
                                small.world.component=unlist(small.world.list3),
                                isolates=unlist(isolates.list),
                                isolates.fraction=unlist(isolates.fraction.list)
-                               )
+    )
     
     list.complete[[a]] <- estimates.df
   }
