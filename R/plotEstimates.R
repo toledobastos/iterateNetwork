@@ -5,7 +5,7 @@ plotEstimates <- function(list.complete,
                           plot.type = "p") {
     
     # select output
-    if(return.estimates=="ALL") { return.estimates <- ncol(list.complete[[1]]) }
+    if(return.estimates=="ALL") { return.estimates <- 1:ncol(list.complete[[1]]) }
     
     # define colors
     if(col=="auto") { colorsmetric <- rainbow(length(list.complete)) }
