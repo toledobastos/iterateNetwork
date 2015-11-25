@@ -1,12 +1,11 @@
 plotEstimates <- function(list.complete,
-                          return.estimates = c(1:6,8:12,14:18),
+                          return.estimates = "ALL",
                           attribute = NULL,
                           col = "auto",
                           plot.type = "p") {
     
-    # # load RDA file
-    # load("complete.org.type.rda")
-    list.complete <- complete.org.type
+    # select output
+    if(return.estimates=="ALL") { return.estimates <- ncol(list.complete[[1]]) }
     
     # define colors
     if(col=="auto") { colorsmetric <- rainbow(length(list.complete)) }
