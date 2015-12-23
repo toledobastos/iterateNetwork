@@ -146,6 +146,7 @@ iterateComplete <- function(net.object,
   if(net.iterate=="low") { net.iterate <- min.stepwise }
   if(net.iterate=="med") { net.iterate <- min.stepwise*(min.stepwise/2) }
   if(net.iterate=="max") { net.iterate <- min.stepwise*min.stepwise }
+  if(net.iterate=="ten") { net.iterate <- min.stepwise*10 }
   stepwise.removal <- 1
   
   # check for small subgroups
