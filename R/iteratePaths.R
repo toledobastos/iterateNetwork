@@ -4,6 +4,11 @@
 # V(net.object)$group <- sample(rep(LETTERS[c(1,4,6,8,4,20)],1000),100)
 # table(V(net.object)$group)
 
+<<<<<<< HEAD
+=======
+temp <- iteratePaths(net.object, attribute="orgsector", from.node.group="EDU", to.node.group="IGOV", stepwise.removal=1)
+
+>>>>>>> 020257b15807a4091e441498baf822258b018820
 iteratePaths <- function(net.object,
                          attribute=NULL,
                          from.node.group=NULL,
