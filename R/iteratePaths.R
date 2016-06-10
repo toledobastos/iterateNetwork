@@ -8,14 +8,12 @@ iteratePaths <- function(net.object,
                          attribute=NULL,
                          from.node.group=NULL,
                          to.node.group=NULL,
-                         net.iterate = 10,
+                         stepwise.removal = 1,
+                         net.iterate = "auto",
                          collapse.minor = 1,
                          iteration.type ="shortest.path",
                          net.samples = rev(seq(0.01:1,by=0.01)),
-                         removal = "node",
-                         stepwise.removal = "auto",
-                         plot.estimators = TRUE,
-                         plot.type = "p") {
+                         removal = "node") {
     
     # check from & to
     if(is.null(from.node.group) | is.null(to.node.group)) { stop(print("iteratePaths require start and end node group")) }
@@ -86,6 +84,8 @@ iteratePaths <- function(net.object,
     # prepare for loop
     estimates.df <- data.frame()
     shortest.paths.list <- list()
+    average.paths.list <- list()
+    maximum.paths.list <- list()
     nodes.num.list <- list()
     edges.num.list <- list()
     
@@ -159,10 +159,12 @@ iteratePaths <- function(net.object,
     for(u in 1:length(net.samples)) {
         
         # reset estimates
+        average.paths.vec <- as.numeric()
+        maximum.paths.vec <- as.numeric()
         shortest.paths.vec <- as.numeric()
         nodes.num.vec <- as.numeric()
         edges.num.vec <- as.numeric()
-
+        
         # start iteration
         for(j in 1:net.iterate) {
             if(iteration.type=="shortest.path") {
@@ -175,22 +177,24 @@ iteratePaths <- function(net.object,
                     edges.deselect <- sample(net.samples.list[[u]], stepwise.removal*j)
                     edges.select <- E(corenet.g)$name[!E(corenet.g)$name %in% edges.deselect]
                     corenet.gx <- igraph::subgraph.edges(corenet.g, eids=which(igraph::E(corenet.g)$name %in% edges.select), delete.vertices=TRUE) }
-            
-            # collect metrics per iteration
-            nodes.num.vec <- c(nodes.num.vec, vcount(corenet.gx))
-            edges.num.vec <- c(edges.num.vec, ecount(corenet.gx))
-            shortest.paths.vec <- c(shortest.paths.vec, mean(unlist(lapply(igraph::get.shortest.paths(corenet.gx, 
-                                    from=V(corenet.gx)$name[V(corenet.gx)$attr.to.iterate==from.node.group], 
-                                    to=V(corenet.gx)$name[V(corenet.gx)$attr.to.iterate==to.node.group], 
-                                    mode = "all")$vpath, length))))
+                
+                # collect metrics per iteration
+                nodes.num.vec <- c(nodes.num.vec, vcount(corenet.gx))
+                edges.num.vec <- c(edges.num.vec, ecount(corenet.gx))
+                average.paths.vec <- c(average.paths.vec, mean(distances(corenet.gx)[rownames(distances(corenet.gx))==from.node.group, colnames(distances(corenet.gx))==to.node.group]))
+                shortest.paths.vec <- c(shortest.paths.vec, min(distances(corenet.gx)[rownames(distances(corenet.gx))==from.node.group, colnames(distances(corenet.gx))==to.node.group]))
+                maximum.paths.vec <- c(maximum.paths.vec, max(distances(corenet.gx)[rownames(distances(corenet.gx))==from.node.group, colnames(distances(corenet.gx))==to.node.group]))
             }
+            
+        }
         
         # aggregate estimates        
-        shortest.paths.list[[u]] <- as.list(shortest.paths.vec)
         nodes.num.list[[u]] <- as.list(nodes.num.vec)
         edges.num.list[[u]] <- as.list(edges.num.vec)
+        average.paths.list[[u]] <- as.list(average.paths.vec)
+        maximum.paths.list[[u]] <- as.list(maximum.paths.vec)
+        shortest.paths.list[[u]] <- as.list(shortest.paths.vec)        
         
-        }
         
         # clear sample network
         rm(corenet.gx)
@@ -198,18 +202,19 @@ iteratePaths <- function(net.object,
         cat("\n")
         print(paste0("Completed iteration ",u," of ", length(net.samples),".")) 
     }
-
+    
     # create response data frame
     if(iteration.type=="shortest.path") { identifier <- rep(attribute.unique, each = net.iterate) }
     if(iteration.type!="shortest.path") { identifier <- rep(net.samples, each = net.iterate) }
     estimates.df <- data.frame(removal=rep(1:net.iterate, length(net.samples)), 
                                percent=round(rep(1:net.iterate, length(net.samples))/vcount(corenet.g), digits = 2), 
-                               group=identifier, nodes=unlist(nodes.num.vec), edges=unlist(edges.num.vec), 
-                               shortest.path=unlist(shortest.paths.list))
+                               group=identifier, nodes=unlist(nodes.num.list), edges=unlist(edges.num.list), 
+                               average.path=unlist(average.paths.list), shortest.path=unlist(shortest.paths.list),
+                               maximum.path=unlist(maximum.paths.list))
     
     # plot data
-    if(plot.estimators==TRUE) {
-        lattice::xyplot(shortest.path~removal|group, data=estimates.df) }
+    plot.temp <- lattice::xyplot(average.path~removal|group, data=estimates.df, pch=19, type=c("p","smooth"), lh=3)
+    print(plot.temp)
     
     print(paste0("Iteration completed"))
     return(estimates.df)
