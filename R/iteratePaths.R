@@ -85,7 +85,7 @@ iteratePaths <- function(net.object,
     estimates.df <- data.frame()
     shortest.paths.list <- list()
     average.paths.list <- list()
-    maximum.paths.list <- list()
+    harmonic.paths.list <- list()
     nodes.num.list <- list()
     edges.num.list <- list()
     
@@ -160,7 +160,7 @@ iteratePaths <- function(net.object,
         
         # reset estimates
         average.paths.vec <- as.numeric()
-        maximum.paths.vec <- as.numeric()
+        harmonic.paths.vec <- as.numeric()
         shortest.paths.vec <- as.numeric()
         nodes.num.vec <- as.numeric()
         edges.num.vec <- as.numeric()
@@ -183,7 +183,8 @@ iteratePaths <- function(net.object,
                 edges.num.vec <- c(edges.num.vec, ecount(corenet.gx))
                 average.paths.vec <- c(average.paths.vec, mean(distances(corenet.gx)[rownames(distances(corenet.gx))==from.node.group, colnames(distances(corenet.gx))==to.node.group]))
                 shortest.paths.vec <- c(shortest.paths.vec, min(distances(corenet.gx)[rownames(distances(corenet.gx))==from.node.group, colnames(distances(corenet.gx))==to.node.group]))
-                maximum.paths.vec <- c(maximum.paths.vec, max(distances(corenet.gx)[rownames(distances(corenet.gx))==from.node.group, colnames(distances(corenet.gx))==to.node.group]))
+                d <- distances(corenet.gx)[rownames(distances(corenet.gx))==from.node.group, colnames(distances(corenet.gx))==to.node.group]
+                harmonic.paths.vec <- c(harmonic.paths.vec, mean(d[upper.tri(d)]^-1)^-1)
             }
             
         }
@@ -192,7 +193,7 @@ iteratePaths <- function(net.object,
         nodes.num.list[[u]] <- as.list(nodes.num.vec)
         edges.num.list[[u]] <- as.list(edges.num.vec)
         average.paths.list[[u]] <- as.list(average.paths.vec)
-        maximum.paths.list[[u]] <- as.list(maximum.paths.vec)
+        harmonic.paths.list[[u]] <- as.list(harmonic.paths.vec)
         shortest.paths.list[[u]] <- as.list(shortest.paths.vec)        
         
         
@@ -210,7 +211,7 @@ iteratePaths <- function(net.object,
                                percent=round(rep(1:net.iterate, length(net.samples))/vcount(corenet.g), digits = 2), 
                                group=identifier, nodes=unlist(nodes.num.list), edges=unlist(edges.num.list), 
                                average.path=unlist(average.paths.list), shortest.path=unlist(shortest.paths.list),
-                               maximum.path=unlist(maximum.paths.list))
+                               harmonic.path=unlist(harmonic.paths.list))
     
     # plot data
     plot.temp <- lattice::xyplot(average.path~removal|group, data=estimates.df, pch=19, type=c("p","smooth"), lh=3)
