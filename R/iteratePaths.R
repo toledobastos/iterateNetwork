@@ -11,12 +11,14 @@ iteratePaths <- function(net.object,
                          stepwise.removal = 1,
                          net.iterate = "auto",
                          collapse.minor = 1,
-                         iteration.type ="shortest.path",
+                         iteration.type ="path.length",
+                         plot.type = "harmonic.path",
                          net.samples = rev(seq(0.01:1,by=0.01)),
                          removal = "node") {
     
-    # check from & to
-    if(is.null(from.node.group) | is.null(to.node.group)) { stop(print("iteratePaths require start and end node group")) }
+    # check attributes
+    if(is.null(attribute)) { stop(print("iteratePaths requires specifying node attribute")) }
+    if(is.null(from.node.group) | is.null(to.node.group)) { stop(print("iteratePaths requires from.node.group and to.node.group variables")) }
     
     # load dependencies
     require(intergraph)
@@ -90,7 +92,7 @@ iteratePaths <- function(net.object,
     edges.num.list <- list()
     
     # index network for attribute iteration
-    if(iteration.type=="shortest.path") {
+    if(iteration.type=="path.length") {
         
         # set attribute group
         V(corenet.g)$attr.to.iterate <- V(corenet.g)$name <- igraph::get.vertex.attribute(corenet.g, attribute)
@@ -167,7 +169,7 @@ iteratePaths <- function(net.object,
         
         # start iteration
         for(j in 1:net.iterate) {
-            if(iteration.type=="shortest.path") {
+            if(iteration.type=="path.length") {
                 if(removal=="node") {
                     cat("\r","Iterative calculation",j,"of",net.iterate,"of shortest path between node types",from.node.group, "and", to.node.group, "by targetting the remainder node types")
                     nodes.deselect <- sample(which(V(corenet.g)$name==net.samples[u]), stepwise.removal*j)
@@ -205,7 +207,7 @@ iteratePaths <- function(net.object,
     }
     
     # create response data frame
-    if(iteration.type=="shortest.path") { identifier <- rep(attribute.unique, each = net.iterate) }
+    if(iteration.type=="path.length") { identifier <- rep(attribute.unique, each = net.iterate) }
     if(iteration.type!="shortest.path") { identifier <- rep(net.samples, each = net.iterate) }
     estimates.df <- data.frame(removal=rep(1:net.iterate, length(net.samples)), 
                                percent=round(rep(1:net.iterate, length(net.samples))/vcount(corenet.g), digits = 2), 
@@ -214,7 +216,8 @@ iteratePaths <- function(net.object,
                                harmonic.path=unlist(harmonic.paths.list))
     
     # plot data
-    plot.temp <- lattice::xyplot(average.path~removal|group, data=estimates.df, pch=19, type=c("p","smooth"), lh=3)
+    if(plot.type=="shortest.path") { plot.temp <- lattice::xyplot(average.path~removal|group, data=estimates.df, pch=19, type=c("p","smooth"), lh=3) }
+    if(plot.type=="harmonic.path") { plot.temp <- lattice::xyplot(harmonic.path~removal|group, data=estimates.df, pch=19, type=c("p","smooth"), lh=3) }
     print(plot.temp)
     
     print(paste0("Iteration completed"))
