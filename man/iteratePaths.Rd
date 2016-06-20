@@ -23,6 +23,9 @@ Starting group from which to calculate the shortest path
   \item{to.node.group}{
 Ending group from which to calculate the shortest path  
 }
+  \item{plot.type}{
+Select variable to plot. Accepts shortest.path or harmonic.path 
+}
 }
 \author{
 Marco T. Bastos

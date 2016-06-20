@@ -1,8 +1,9 @@
 # # Not run:
 # # generate random data
-# net.object <- watts.strogatz.game(1, 300, 4, 0.01)
-# V(net.object)$group <- sample(rep(LETTERS[c(1,4,6,8,4,20)],1000),100)
-# table(V(net.object)$group)
+# net.object <- igraph::watts.strogatz.game(1, 300, 4, 0.01)
+# igraph::V(net.object)$group <- sample(rep(LETTERS[c(1,4,6,8,4,20)],1000),100)
+# table(igraph::V(net.object)$group)
+# iterateNetwork::iteratePaths(net.object, attribute="group", from.node.group="A", to.node.group="T")
 
 iteratePaths <- function(net.object,
                          attribute=NULL,
